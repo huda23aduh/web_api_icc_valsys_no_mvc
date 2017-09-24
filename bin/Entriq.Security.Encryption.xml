@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Entriq.Security.Encryption</name>
+    </assembly>
+    <members>
+        <member name="T:Entriq.Security.Encryption.HashGenerator">
+            <summary>
+            Summary description for Class1.
+            </summary>
+        </member>
+        <member name="M:Entriq.Security.Encryption.HashGenerator.GenerateMD5AsString(System.String)">
+            <summary>
+            Generates an MD5 hash based on the input string.
+            </summary>
+            <param name="stringToHash">string to hash</param>
+            <returns>The 16 bytes hash as a hexadecimal string</returns>
+        </member>
+        <member name="M:Entriq.Security.Encryption.HashGenerator.GenerateMD5AsByteArray(System.String)">
+            <summary>
+            Generates an MD5 hash based on the input string.
+            </summary>
+            <param name="stringToHash">string to hash</param>
+            <returns>The 16 bytes hash as a byte array</returns>
+        </member>
+        <member name="T:Entriq.Security.Encryption.EncryptMode">
+            <summary>
+            Encryption mode specifies the policy to use for encryption (clear or v3basic)
+            </summary>
+        </member>
+        <member name="F:Entriq.Security.Encryption.EncryptMode.Clear">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:Entriq.Security.Encryption.EncryptMode.V3basic">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:Entriq.Security.Encryption.MANEncryptor">
+            <summary>
+            MANEncryptor is a customized implementation of Rijndael symmetric encryption, for use by
+            MAN applications.
+            </summary>
+        </member>
+        <member name="F:Entriq.Security.Encryption.MANEncryptor.DefaultKey">
+            <summary>
+             Default Key
+            </summary>
+        </member>
+        <member name="M:Entriq.Security.Encryption.MANEncryptor.Encrypt(System.String,System.String,Entriq.Security.Encryption.EncryptMode,System.String@)">
+            <summary>
+            This method is called to encrypt a string of data and takes the following paramters
+            </summary>
+            <param name="dataIn">clear (unencrypted) unicode string (16 bit character set)</param>
+            <param name="accountId">account id string that identifies the owner of the data, this should be a ASCII string (8 bit character set)</param>
+            <param name="eMode">This is the policy to policy that governs the encryption, currently supports Clear and V3basic (new policies will be added to improve the strength of encryption from time to time)</param>
+            <param name="dataOut">encrypted string, this is a base64 encoded string of the encrypted bits</param>
+            <returns></returns>
+        </member>
+        <member name="M:Entriq.Security.Encryption.MANEncryptor.Decrypt(System.String,System.String,System.String@)">
+            <summary>
+            This method is called to decrypt a string of data and takes the following paramters
+            dataIn - encrypted string, this is the base64 encoded string of the encrypted bits. 
+            accountId - account id string that identifies the owner of the data, this should be ASCII characters only (8 bit character set)
+            dataOut - decrypted(clear) unicode string (16 bit character set) 
+            </summary>
+        </member>
+        <member name="M:Entriq.Security.Encryption.MANEncryptor.DecryptAndClean(System.String)">
+            <summary>
+            Decrypt and Clean the output string with default key.
+            </summary>
+            <param name="s"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Entriq.Security.Encryption.MANEncryptor.DecryptAndClean(System.String,System.String)">
+            <summary>
+            Decrypt and Clean the output string.
+            </summary>
+            <param name="s"></param>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="F:Entriq.Security.Encryption.MANEncryptor.CLEAR_STR">
+            <summary>
+            internal constants 
+            </summary>
+        </member>
+        <member name="T:Entriq.Security.Encryption.MANKeys">
+            <summary>
+            Summary description for MANKeys.
+            </summary>
+        </member>
+        <member name="F:Entriq.Security.Encryption.MANKeys.storageKey">
+            <summary>
+            Internal implementation of Storage Key
+            </summary>
+        </member>
+        <member name="P:Entriq.Security.Encryption.MANKeys.StorageKey">
+            <summary>
+            MAN storage key used for deriving the account keys for symmetric encryption
+            </summary>
+        </member>
+    </members>
+</doc>

@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>web_api_icc_valsys_no_mvc</name>
+    </assembly>
+    <members>
+        <member name="M:web_api_icc_valsys_no_mvc.Controllers.CobaController.Get(System.Int32)">
+            <summary>
+            Looks up some data by ID.
+            </summary>
+            <param name="id">The ID of the data.</param>
+        </member>
+    </members>
+</doc>

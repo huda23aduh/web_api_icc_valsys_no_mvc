@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<parameters>
+  <parameter name="IIS Web Application Name" description="" value="192.168.177.186/webapi_icc_valsys_dev" tags="IisApp">
+    <parameterEntry kind="ProviderPath" scope="IisApp" match="^D:\\mnc\ porject\\program\ huda\\web_api_icc_valsys\\web_api_icc_valsys_no_mvc\\web_api_icc_valsys_no_mvc\\obj\\Release\\Package\\PackageTmp$" />
+    <parameterEntry kind="ProviderPath" scope="setAcl" match="^D:\\mnc\ porject\\program\ huda\\web_api_icc_valsys\\web_api_icc_valsys_no_mvc\\web_api_icc_valsys_no_mvc\\obj\\Release\\Package\\PackageTmp$" />
+  </parameter>
+</parameters>

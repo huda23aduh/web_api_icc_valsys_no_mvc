@@ -1,0 +1,980 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+This file is used by the publish/package process of your Web project. You can customize the behavior of this process
+by editing this MSBuild file. In order to learn more about this please visit https://go.microsoft.com/fwlink/?LinkID=208121. 
+-->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <TimeStampOfAssociatedLegacyPublishXmlFile />
+    <_NewBackgroundProfile>False</_NewBackgroundProfile>
+    <_PublishTargetUrl>C:\inetpub\wwwroot\webapi_icc_valsys</_PublishTargetUrl>
+  </PropertyGroup>
+  <ItemGroup>
+    <File Include="Areas/HelpPage/HelpPage.css">
+      <publishTime>08/31/2017 16:00:42</publishTime>
+    </File>
+    <File Include="Areas/HelpPage/views/Help/Api.cshtml">
+      <publishTime>08/31/2017 16:00:41</publishTime>
+    </File>
+    <File Include="Areas/HelpPage/views/Help/DisplayTemplates/ApiGroup.cshtml">
+      <publishTime>08/31/2017 16:00:41</publishTime>
+    </File>
+    <File Include="Areas/HelpPage/views/Help/DisplayTemplates/CollectionModelDescription.cshtml">
+      <publishTime>08/31/2017 16:00:41</publishTime>
+    </File>
+    <File Include="Areas/HelpPage/views/Help/DisplayTemplates/ComplexTypeModelDescription.cshtml">
+      <publishTime>08/31/2017 16:00:41</publishTime>
+    </File>
+    <File Include="Areas/HelpPage/views/Help/DisplayTemplates/DictionaryModelDescription.cshtml">
+      <publishTime>08/31/2017 16:00:41</publishTime>
+    </File>
+    <File Include="Areas/HelpPage/views/Help/DisplayTemplates/EnumTypeModelDescription.cshtml">
+      <publishTime>08/31/2017 16:00:41</publishTime>
+    </File>
+    <File Include="Areas/HelpPage/views/Help/DisplayTemplates/HelpPageApiModel.cshtml">
+      <publishTime>08/31/2017 16:00:41</publishTime>
+    </File>
+    <File Include="Areas/HelpPage/views/Help/DisplayTemplates/ImageSample.cshtml">
+      <publishTime>08/31/2017 16:00:41</publishTime>
+    </File>
+    <File Include="Areas/HelpPage/views/Help/DisplayTemplates/InvalidSample.cshtml">
+      <publishTime>08/31/2017 16:00:41</publishTime>
+    </File>
+    <File Include="Areas/HelpPage/views/Help/DisplayTemplates/KeyValuePairModelDescription.cshtml">
+      <publishTime>08/31/2017 16:00:41</publishTime>
+    </File>
+    <File Include="Areas/HelpPage/views/Help/DisplayTemplates/ModelDescriptionLink.cshtml">
+      <publishTime>08/31/2017 16:00:41</publishTime>
+    </File>
+    <File Include="Areas/HelpPage/views/Help/DisplayTemplates/Parameters.cshtml">
+      <publishTime>08/31/2017 16:00:41</publishTime>
+    </File>
+    <File Include="Areas/HelpPage/views/Help/DisplayTemplates/Samples.cshtml">
+      <publishTime>08/31/2017 16:00:41</publishTime>
+    </File>
+    <File Include="Areas/HelpPage/views/Help/DisplayTemplates/SimpleTypeModelDescription.cshtml">
+      <publishTime>08/31/2017 16:00:41</publishTime>
+    </File>
+    <File Include="Areas/HelpPage/views/Help/DisplayTemplates/TextSample.cshtml">
+      <publishTime>08/31/2017 16:00:40</publishTime>
+    </File>
+    <File Include="Areas/HelpPage/views/Help/Index.cshtml">
+      <publishTime>08/31/2017 16:00:40</publishTime>
+    </File>
+    <File Include="Areas/HelpPage/views/Help/ResourceModel.cshtml">
+      <publishTime>08/31/2017 16:00:40</publishTime>
+    </File>
+    <File Include="Areas/HelpPage/views/index.cshtml">
+      <publishTime>08/31/2017 16:01:25</publishTime>
+    </File>
+    <File Include="Areas/HelpPage/views/Shared/_Layout.cshtml">
+      <publishTime>08/31/2017 16:00:40</publishTime>
+    </File>
+    <File Include="Areas/HelpPage/views/Web.config">
+      <publishTime>08/31/2017 16:00:40</publishTime>
+    </File>
+    <File Include="Areas/HelpPage/views/_ViewStart.cshtml">
+      <publishTime>08/31/2017 16:00:40</publishTime>
+    </File>
+    <File Include="bin/Castle.Core.dll">
+      <publishTime>03/15/2017 17:44:40</publishTime>
+    </File>
+    <File Include="bin/Castle.Core.pdb">
+      <publishTime>03/15/2017 17:44:40</publishTime>
+    </File>
+    <File Include="bin/Castle.Windsor.dll">
+      <publishTime>03/15/2017 17:44:40</publishTime>
+    </File>
+    <File Include="bin/Castle.Windsor.pdb">
+      <publishTime>03/15/2017 17:44:40</publishTime>
+    </File>
+    <File Include="bin/Entriq.Common.dll">
+      <publishTime>03/15/2017 18:14:11</publishTime>
+    </File>
+    <File Include="bin/Entriq.Common.pdb">
+      <publishTime>03/15/2017 18:14:11</publishTime>
+    </File>
+    <File Include="bin/Entriq.DataAccess.dll">
+      <publishTime>03/15/2017 18:14:14</publishTime>
+    </File>
+    <File Include="bin/Entriq.DataAccess.Oracle.dll">
+      <publishTime>03/15/2017 18:14:18</publishTime>
+    </File>
+    <File Include="bin/Entriq.DataAccess.Oracle.pdb">
+      <publishTime>03/15/2017 18:14:18</publishTime>
+    </File>
+    <File Include="bin/Entriq.DataAccess.pdb">
+      <publishTime>03/15/2017 18:14:14</publishTime>
+    </File>
+    <File Include="bin/Entriq.IBS.Core.dll">
+      <publishTime>03/15/2017 18:14:22</publishTime>
+    </File>
+    <File Include="bin/Entriq.IBS.Core.pdb">
+      <publishTime>01/01/0001 00:00:00</publishTime>
+    </File>
+    <File Include="bin/Entriq.IBS.Events.dll">
+      <publishTime>03/15/2017 18:14:25</publishTime>
+    </File>
+    <File Include="bin/Entriq.IBS.Events.pdb">
+      <publishTime>03/15/2017 18:14:25</publishTime>
+    </File>
+    <File Include="bin/Entriq.IBS.Exceptions.dll">
+      <publishTime>03/15/2017 18:14:27</publishTime>
+    </File>
+    <File Include="bin/Entriq.IBS.Exceptions.pdb">
+      <publishTime>03/15/2017 18:14:27</publishTime>
+    </File>
+    <File Include="bin/Entriq.IBS.History.dll">
+      <publishTime>03/15/2017 18:14:31</publishTime>
+    </File>
+    <File Include="bin/Entriq.IBS.History.pdb">
+      <publishTime>03/15/2017 18:14:31</publishTime>
+    </File>
+    <File Include="bin/Entriq.IBS.Util.dll">
+      <publishTime>03/15/2017 18:14:34</publishTime>
+    </File>
+    <File Include="bin/Entriq.IBS.Util.pdb">
+      <publishTime>03/15/2017 18:14:34</publishTime>
+    </File>
+    <File Include="bin/Entriq.Security.Encryption.dll">
+      <publishTime>03/15/2017 18:14:36</publishTime>
+    </File>
+    <File Include="bin/Entriq.Security.Encryption.pdb">
+      <publishTime>03/15/2017 18:14:36</publishTime>
+    </File>
+    <File Include="bin/Iesi.Collections.dll">
+      <publishTime>01/01/0001 00:00:00</publishTime>
+    </File>
+    <File Include="bin/Iesi.Collections.pdb">
+      <publishTime>01/01/0001 00:00:00</publishTime>
+    </File>
+    <File Include="bin/License.Core.External.dll">
+      <publishTime>03/15/2017 17:44:40</publishTime>
+    </File>
+    <File Include="bin/License.Core.Interfaces.dll">
+      <publishTime>03/15/2017 17:44:40</publishTime>
+    </File>
+    <File Include="bin/Licensing.Net.dll">
+      <publishTime>03/15/2017 17:44:40</publishTime>
+    </File>
+    <File Include="bin/Licensing.Net.Three.dll">
+      <publishTime>03/15/2017 17:44:40</publishTime>
+    </File>
+    <File Include="bin/LinFu.DynamicProxy.dll">
+      <publishTime>01/01/0001 00:00:00</publishTime>
+    </File>
+    <File Include="bin/Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll">
+      <publishTime>12/13/2016 03:10:32</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Practices.EnterpriseLibrary.Common.dll">
+      <publishTime>03/15/2017 17:44:40</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Practices.EnterpriseLibrary.Logging.dll">
+      <publishTime>03/15/2017 17:44:40</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Practices.ServiceLocation.dll">
+      <publishTime>03/15/2017 17:44:40</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Practices.ServiceLocation.pdb">
+      <publishTime>03/15/2017 17:44:40</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Practices.Unity.dll">
+      <publishTime>03/15/2017 17:44:40</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Practices.Unity.Interception.dll">
+      <publishTime>03/15/2017 17:44:40</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Practices.Unity.Interception.pdb">
+      <publishTime>03/15/2017 17:44:40</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Practices.Unity.pdb">
+      <publishTime>03/15/2017 17:44:40</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Web.Infrastructure.dll">
+      <publishTime>07/25/2012 11:48:56</publishTime>
+    </File>
+    <File Include="bin/Newtonsoft.Json.dll">
+      <publishTime>03/08/2014 20:33:56</publishTime>
+    </File>
+    <File Include="bin/NHibernate.ByteCode.LinFu.dll">
+      <publishTime>01/01/0001 00:00:00</publishTime>
+    </File>
+    <File Include="bin/NHibernate.ByteCode.LinFu.pdb">
+      <publishTime>01/01/0001 00:00:00</publishTime>
+    </File>
+    <File Include="bin/NHibernate.dll">
+      <publishTime>01/01/0001 00:00:00</publishTime>
+    </File>
+    <File Include="bin/NHibernate.pdb">
+      <publishTime>01/01/0001 00:00:00</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.AgreementManagement.BizObj.dll">
+      <publishTime>03/15/2017 18:14:41</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.AgreementManagement.BizObj.pdb">
+      <publishTime>03/15/2017 18:14:41</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.AgreementManagement.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:13</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.AgreementManagement.ServiceContracts.Internal.dll">
+      <publishTime>03/15/2017 17:46:35</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.AgreementManagement.ServiceContracts.Internal.pdb">
+      <publishTime>03/15/2017 17:51:21</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.AgreementManagement.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:56:40</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Anonymization.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:17</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Anonymization.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:56:54</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Arrears.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:14</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Arrears.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:46:14</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Authentication.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:03</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Authentication.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:50:53</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.B2BSettlement.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:21</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.B2BSettlement.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:51:35</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.BackgroundManager.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:36</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.BackgroundManager.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:57:08</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Banking.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:16</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Banking.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:55:04</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Batch.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:16</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Batch.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:55:45</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.BillingEngine.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:29</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.BillingEngine.ServiceContracts.Internal.dll">
+      <publishTime>03/15/2017 17:46:36</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.BillingEngine.ServiceContracts.Internal.pdb">
+      <publishTime>03/15/2017 17:54:36</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.BillingEngine.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:50:21</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.BusinessUnits.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:15</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.BusinessUnits.ServiceContracts.pdb">
+      <publishTime>01/01/0001 00:00:00</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.CacheInterceptor.dll">
+      <publishTime>03/15/2017 17:46:35</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.CacheInterceptor.pdb">
+      <publishTime>03/15/2017 17:50:54</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.ClientProxy.dll">
+      <publishTime>03/15/2017 17:47:04</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.ClientProxy.pdb">
+      <publishTime>03/15/2017 17:47:04</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.ConfigurationBase.dll">
+      <publishTime>03/15/2017 17:46:30</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.ConfigurationBase.pdb">
+      <publishTime>03/15/2017 17:50:54</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.ConfigurationPromoter.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:36</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.ConfigurationPromoter.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:57:13</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Contacts.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:18</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Contacts.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:46:18</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Customers.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:06</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Customers.ServiceContracts.Internal.dll">
+      <publishTime>03/15/2017 17:46:36</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Customers.ServiceContracts.Internal.pdb">
+      <publishTime>03/15/2017 17:46:36</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Customers.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:54:16</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.CustomFields.BizObj.dll">
+      <publishTime>03/15/2017 18:16:07</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.CustomFields.BizObj.pdb">
+      <publishTime>01/01/0001 00:00:00</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.CustomFields.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:19</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.CustomFields.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:54:44</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.DateFormulas.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:21</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.DateFormulas.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:52:16</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Devices.InternalServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:16</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Devices.InternalServiceContracts.pdb">
+      <publishTime>03/15/2017 17:53:27</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Devices.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:16</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Devices.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:53:22</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Distributors.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:19</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Distributors.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:49:47</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.DocumentManagement.ServiceContracts.dll">
+      <publishTime>03/07/2017 07:14:13</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.DocumentManagement.ServiceContracts.pdb">
+      <publishTime>03/27/2017 08:40:06</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.DocumentStorageSystem.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:25</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.DocumentStorageSystem.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:56:28</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.EnterpriseFacade.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:27</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.EnterpriseFacade.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:56:08</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.EntityMetadata.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:19</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.EntityMetadata.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:52:11</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.ErrorHandler.dll">
+      <publishTime>03/15/2017 17:46:03</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.ErrorHandler.pdb">
+      <publishTime>03/15/2017 17:46:03</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Escalations.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:22</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Escalations.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:56:33</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Factory.dll">
+      <publishTime>03/15/2017 17:46:05</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Factory.Internal.dll">
+      <publishTime>03/15/2017 17:46:37</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Factory.Internal.pdb">
+      <publishTime>03/15/2017 17:50:55</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Factory.pdb">
+      <publishTime>03/15/2017 17:46:05</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Finance.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:11</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Finance.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:51:23</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Finance.ServiceContractsInternal.dll">
+      <publishTime>03/15/2017 17:46:34</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Finance.ServiceContractsInternal.pdb">
+      <publishTime>03/15/2017 17:50:28</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Globalization.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:22</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Globalization.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:50:38</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.History.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:22</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.History.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:55:36</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.HostManagement.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:28</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.HostManagement.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:46:28</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Infrastructure.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:08</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Infrastructure.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:56:15</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.IntegrationFramework.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:33</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.IntegrationFramework.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:57:20</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.InvoiceRun.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:28</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.InvoiceRun.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:52:21</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Letters.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:15</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Letters.ServiceContracts.Internal.dll">
+      <publishTime>03/15/2017 17:46:34</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Letters.ServiceContracts.Internal.pdb">
+      <publishTime>03/15/2017 17:46:34</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Letters.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:52:51</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Logistics.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:20</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Logistics.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:54:17</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Logistics.Shared.dll">
+      <publishTime>03/15/2017 17:47:23</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Logistics.Shared.pdb">
+      <publishTime>03/15/2017 17:51:24</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.MarketSegments.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:18</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.MarketSegments.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:54:28</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.OfferManagement.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:22</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.OfferManagement.ServiceContracts.Internal.dll">
+      <publishTime>03/15/2017 17:46:33</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.OfferManagement.ServiceContracts.Internal.pdb">
+      <publishTime>03/15/2017 17:51:49</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.OfferManagement.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:56:05</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.OrderableEvent.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:14</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.OrderableEvent.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:56:46</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.OrderableEventCatalog.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:17</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.OrderableEventCatalog.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:55:40</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.OrderManagement.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:23</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.OrderManagement.ServiceContracts.Internal.dll">
+      <publishTime>03/15/2017 17:46:34</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.OrderManagement.ServiceContracts.Internal.pdb">
+      <publishTime>03/15/2017 17:46:34</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.OrderManagement.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:56:06</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Payment.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:31</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Payment.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:54:33</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Prepaid.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:14</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Prepaid.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:56:46</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.PriceAdjustment.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:20</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.PriceAdjustment.ServiceContracts.Internal.dll">
+      <publishTime>03/15/2017 17:46:37</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.PriceAdjustment.ServiceContracts.Internal.pdb">
+      <publishTime>03/15/2017 17:46:37</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.PriceAdjustment.ServiceContracts.pdb">
+      <publishTime>01/01/0001 00:00:00</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.PriceFinder.dll">
+      <publishTime>03/15/2017 17:46:52</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.PriceFinder.pdb">
+      <publishTime>03/15/2017 17:53:32</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Pricing.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:12</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Pricing.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:52:31</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.ProductCatalog.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:10</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.ProductCatalog.ServiceContracts.Internal.dll">
+      <publishTime>03/15/2017 17:46:37</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.ProductCatalog.ServiceContracts.Internal.pdb">
+      <publishTime>03/15/2017 17:46:37</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.ProductCatalog.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:54:18</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Query.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:27</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Query.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:52:01</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.QueueManager.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:17</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.QueueManager.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:50:43</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Reporting.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:07</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Reporting.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:52:44</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.SandBoxManager.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:11</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.SandBoxManager.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:56:06</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.ScheduleManager.BizObj.dll">
+      <publishTime>03/15/2017 18:19:37</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.ScheduleManager.BizObj.pdb">
+      <publishTime>03/15/2017 18:19:37</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.ScheduleManager.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:30</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.ScheduleManager.ServiceContracts.Internal.dll">
+      <publishTime>03/15/2017 17:46:34</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.ScheduleManager.ServiceContracts.Internal.pdb">
+      <publishTime>03/15/2017 17:55:33</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.ScheduleManager.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:55:29</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.ServiceBase.dll">
+      <publishTime>03/15/2017 17:46:43</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.ServiceBase.pdb">
+      <publishTime>03/15/2017 17:46:43</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.ServiceLocation.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:29</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.ServiceLocation.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:54:55</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.ServiceLocator.dll">
+      <publishTime>03/15/2017 17:46:36</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.ServiceLocator.pdb">
+      <publishTime>03/15/2017 17:50:55</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.ServiceMediator.dll">
+      <publishTime>03/15/2017 17:46:48</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.ServiceMediator.pdb">
+      <publishTime>03/15/2017 17:46:48</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.SharedContracts.dll">
+      <publishTime>03/15/2017 17:45:59</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.SharedContracts.pdb">
+      <publishTime>03/15/2017 17:49:47</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.SpearController.dll">
+      <publishTime>03/15/2017 17:46:49</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.SpearController.pdb">
+      <publishTime>03/15/2017 17:46:49</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.SystemEvents.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:18</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.SystemEvents.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:51:23</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Tax.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:30</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Tax.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:46:30</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.UISupport.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:28</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.UISupport.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:54:50</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Users.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:07</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Users.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:50:55</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.ViewFacade.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:25</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.ViewFacade.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:57:02</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.VoIP.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:26</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.VoIP.ServiceContracts.Internal.dll">
+      <publishTime>03/15/2017 17:46:26</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.VoIP.ServiceContracts.Internal.pdb">
+      <publishTime>03/15/2017 17:56:23</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.VoIP.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:56:21</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Workforce.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:27</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Workforce.ServiceContracts.Internal.dll">
+      <publishTime>03/15/2017 17:46:44</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Workforce.ServiceContracts.Internal.pdb">
+      <publishTime>03/15/2017 17:46:44</publishTime>
+    </File>
+    <File Include="bin/PayMedia.ApplicationServices.Workforce.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:56:07</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Background.AgreementManagement.dll">
+      <publishTime>03/15/2017 17:46:54</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Background.AgreementManagement.pdb">
+      <publishTime>01/01/0001 00:00:00</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Background.Interfaces.dll">
+      <publishTime>03/15/2017 17:46:07</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Background.Interfaces.pdb">
+      <publishTime>03/15/2017 17:52:24</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Background.Request.dll">
+      <publishTime>03/15/2017 17:46:39</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Background.Request.pdb">
+      <publishTime>03/15/2017 17:52:24</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Background.SemaphoreFactory.dll">
+      <publishTime>03/15/2017 17:46:53</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Background.SemaphoreFactory.pdb">
+      <publishTime>03/15/2017 17:46:53</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Background2.Framework.dll">
+      <publishTime>03/15/2017 17:46:59</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Background2.Framework.pdb">
+      <publishTime>03/15/2017 17:50:57</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Background2.Interfaces.dll">
+      <publishTime>03/15/2017 17:46:07</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Background2.Interfaces.pdb">
+      <publishTime>03/15/2017 17:50:57</publishTime>
+    </File>
+    <File Include="bin/PayMedia.BizFacade.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:33</publishTime>
+    </File>
+    <File Include="bin/PayMedia.BizFacade.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:57:43</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Configuration.dll">
+      <publishTime>03/15/2017 17:45:59</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Configuration.pdb">
+      <publishTime>03/15/2017 17:49:52</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Integration.CommunicationLog.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:21</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Integration.CommunicationLog.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:58:08</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Integration.DataAggregator.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:34</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Integration.DataAggregator.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:57:56</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Integration.FrameworkService.Common.dll">
+      <publishTime>03/15/2017 17:46:41</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Integration.FrameworkService.Common.pdb">
+      <publishTime>03/15/2017 17:46:41</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Integration.FrameworkService.Interfaces.dll">
+      <publishTime>03/15/2017 17:46:39</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Integration.FrameworkService.Interfaces.pdb">
+      <publishTime>03/15/2017 17:46:39</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Integration.IntegrationEvent.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:08</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Integration.IntegrationEvent.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:58:03</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Integration.Provisioning.ServiceContracts.dll">
+      <publishTime>03/15/2017 17:46:35</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Integration.Provisioning.ServiceContracts.pdb">
+      <publishTime>03/15/2017 17:57:50</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Libraries.IntegrationAQ.dll">
+      <publishTime>03/15/2017 17:46:40</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Libraries.IntegrationAQ.pdb">
+      <publishTime>03/15/2017 17:46:40</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Logging.dll">
+      <publishTime>03/15/2017 17:46:03</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Logging.pdb">
+      <publishTime>03/15/2017 17:46:03</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Security.Authentication.AuthenticationBase.dll">
+      <publishTime>03/15/2017 18:21:03</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Security.Authentication.AuthenticationBase.pdb">
+      <publishTime>03/15/2017 18:21:03</publishTime>
+    </File>
+    <File Include="bin/Paymedia.Security.Authentication.Token.dll">
+      <publishTime>03/15/2017 18:21:06</publishTime>
+    </File>
+    <File Include="bin/Paymedia.Security.Authentication.Token.pdb">
+      <publishTime>03/15/2017 18:21:06</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Security.AuthenticationInterceptor.dll">
+      <publishTime>03/15/2017 17:46:05</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Security.AuthenticationInterceptor.pdb">
+      <publishTime>03/15/2017 17:50:54</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Security.Authorization.dll">
+      <publishTime>03/15/2017 18:21:08</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Security.Authorization.pdb">
+      <publishTime>03/15/2017 18:21:08</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Security.Cryptography.dll">
+      <publishTime>01/01/0001 00:00:00</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Security.Cryptography.pdb">
+      <publishTime>01/01/0001 00:00:00</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Security.Interfaces.dll">
+      <publishTime>03/15/2017 18:21:16</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Security.Interfaces.pdb">
+      <publishTime>03/15/2017 18:21:16</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Security.Licensing.dll">
+      <publishTime>03/15/2017 18:21:17</publishTime>
+    </File>
+    <File Include="bin/PayMedia.Security.Licensing.pdb">
+      <publishTime>03/15/2017 18:21:17</publishTime>
+    </File>
+    <File Include="bin/roslyn/csc.exe">
+      <publishTime>06/27/2016 14:50:24</publishTime>
+    </File>
+    <File Include="bin/roslyn/csc.exe.config">
+      <publishTime>06/27/2016 14:50:24</publishTime>
+    </File>
+    <File Include="bin/roslyn/csc.rsp">
+      <publishTime>06/27/2016 14:50:24</publishTime>
+    </File>
+    <File Include="bin/roslyn/csi.exe">
+      <publishTime>06/27/2016 14:50:24</publishTime>
+    </File>
+    <File Include="bin/roslyn/csi.rsp">
+      <publishTime>06/27/2016 14:50:24</publishTime>
+    </File>
+    <File Include="bin/roslyn/Microsoft.Build.Tasks.CodeAnalysis.dll">
+      <publishTime>06/27/2016 14:50:24</publishTime>
+    </File>
+    <File Include="bin/roslyn/Microsoft.CodeAnalysis.CSharp.dll">
+      <publishTime>06/27/2016 14:50:24</publishTime>
+    </File>
+    <File Include="bin/roslyn/Microsoft.CodeAnalysis.CSharp.Scripting.dll">
+      <publishTime>06/27/2016 14:50:24</publishTime>
+    </File>
+    <File Include="bin/roslyn/Microsoft.CodeAnalysis.dll">
+      <publishTime>06/27/2016 14:50:24</publishTime>
+    </File>
+    <File Include="bin/roslyn/Microsoft.CodeAnalysis.Scripting.dll">
+      <publishTime>06/27/2016 14:50:24</publishTime>
+    </File>
+    <File Include="bin/roslyn/Microsoft.CodeAnalysis.VisualBasic.dll">
+      <publishTime>06/27/2016 14:50:24</publishTime>
+    </File>
+    <File Include="bin/roslyn/Microsoft.CSharp.Core.targets">
+      <publishTime>06/27/2016 14:50:24</publishTime>
+    </File>
+    <File Include="bin/roslyn/Microsoft.DiaSymReader.Native.amd64.dll">
+      <publishTime>06/27/2016 14:50:24</publishTime>
+    </File>
+    <File Include="bin/roslyn/Microsoft.DiaSymReader.Native.x86.dll">
+      <publishTime>06/27/2016 14:50:24</publishTime>
+    </File>
+    <File Include="bin/roslyn/Microsoft.VisualBasic.Core.targets">
+      <publishTime>06/27/2016 14:50:24</publishTime>
+    </File>
+    <File Include="bin/roslyn/System.AppContext.dll">
+      <publishTime>06/27/2016 14:50:24</publishTime>
+    </File>
+    <File Include="bin/roslyn/System.Collections.Immutable.dll">
+      <publishTime>06/27/2016 14:50:24</publishTime>
+    </File>
+    <File Include="bin/roslyn/System.Diagnostics.StackTrace.dll">
+      <publishTime>06/27/2016 14:50:24</publishTime>
+    </File>
+    <File Include="bin/roslyn/System.IO.FileSystem.dll">
+      <publishTime>06/27/2016 14:50:24</publishTime>
+    </File>
+    <File Include="bin/roslyn/System.IO.FileSystem.Primitives.dll">
+      <publishTime>06/27/2016 14:50:24</publishTime>
+    </File>
+    <File Include="bin/roslyn/System.Reflection.Metadata.dll">
+      <publishTime>06/27/2016 14:50:24</publishTime>
+    </File>
+    <File Include="bin/roslyn/vbc.exe">
+      <publishTime>06/27/2016 14:50:24</publishTime>
+    </File>
+    <File Include="bin/roslyn/vbc.exe.config">
+      <publishTime>06/27/2016 14:50:24</publishTime>
+    </File>
+    <File Include="bin/roslyn/vbc.rsp">
+      <publishTime>06/27/2016 14:50:24</publishTime>
+    </File>
+    <File Include="bin/roslyn/VBCSCompiler.exe">
+      <publishTime>06/27/2016 14:50:24</publishTime>
+    </File>
+    <File Include="bin/roslyn/VBCSCompiler.exe.config">
+      <publishTime>06/27/2016 14:50:24</publishTime>
+    </File>
+    <File Include="bin/SmartThreadPool.dll">
+      <publishTime>03/15/2017 17:44:41</publishTime>
+    </File>
+    <File Include="bin/System.Net.Http.Formatting.dll">
+      <publishTime>01/28/2015 04:02:42</publishTime>
+    </File>
+    <File Include="bin/System.Web.Helpers.dll">
+      <publishTime>01/28/2015 04:04:30</publishTime>
+    </File>
+    <File Include="bin/System.Web.Http.dll">
+      <publishTime>01/28/2015 04:02:54</publishTime>
+    </File>
+    <File Include="bin/System.Web.Http.WebHost.dll">
+      <publishTime>01/28/2015 04:03:46</publishTime>
+    </File>
+    <File Include="bin/System.Web.Mvc.dll">
+      <publishTime>01/28/2015 04:02:18</publishTime>
+    </File>
+    <File Include="bin/System.Web.Razor.dll">
+      <publishTime>01/28/2015 04:02:32</publishTime>
+    </File>
+    <File Include="bin/System.Web.WebPages.Deployment.dll">
+      <publishTime>01/28/2015 04:04:30</publishTime>
+    </File>
+    <File Include="bin/System.Web.WebPages.dll">
+      <publishTime>01/28/2015 04:04:30</publishTime>
+    </File>
+    <File Include="bin/System.Web.WebPages.Razor.dll">
+      <publishTime>01/28/2015 04:04:30</publishTime>
+    </File>
+    <File Include="bin/web_api_icc_valsys_no_mvc.dll">
+      <publishTime>09/20/2017 12:11:38</publishTime>
+    </File>
+    <File Include="bin/web_api_icc_valsys_no_mvc.pdb">
+      <publishTime>09/20/2017 12:11:38</publishTime>
+    </File>
+    <File Include="bin/XmlDocument.xml">
+      <publishTime>09/20/2017 12:11:38</publishTime>
+    </File>
+    <File Include="Global.asax">
+      <publishTime>03/19/2017 15:21:20</publishTime>
+    </File>
+    <File Include="index.html">
+      <publishTime>08/31/2017 16:42:02</publishTime>
+    </File>
+    <File Include="packages.config">
+      <publishTime>08/31/2017 17:59:52</publishTime>
+    </File>
+    <File Include="views/page.html">
+      <publishTime>03/19/2017 15:32:46</publishTime>
+    </File>
+    <File Include="Web.config">
+      <publishTime>09/15/2017 11:07:54</publishTime>
+    </File>
+  </ItemGroup>
+</Project>
