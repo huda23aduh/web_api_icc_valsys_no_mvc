@@ -25,6 +25,7 @@ using web_api_icc_valsys_no_mvc.Models;
 using System.IO;
 using System.Text;
 using Newtonsoft.Json;
+using PayMedia.ApplicationServices.ProductCatalog.ServiceContracts;
 
 namespace web_api_icc_valsys_no_mvc.Controllers
 {
@@ -206,6 +207,53 @@ namespace web_api_icc_valsys_no_mvc.Controllers
                 return Request.CreateResponse(HttpStatusCode.OK, message);
             }
             
+
+
+        }
+
+
+        [HttpGet]
+        [Route("api/{username_ad}/{password_ad}/shippingorder/sn_success_attached_and_status_mayship/{cust_id}/{so_id}")]
+        public HttpResponseMessage sn_success_attached_and_status_mayship(String username_ad, String password_ad, int cust_id, int so_id)
+        {
+
+            Authentication_class var_auth = new Authentication_class();
+            AuthenticationHeader authHeader = var_auth.getAuthHeader(username_ad, password_ad);
+            AsmRepository.SetServiceLocationUrl(var_auth.var_service_location_url);
+            try
+            {
+
+                var soService = AsmRepository.AllServices.GetOrderManagementService(authHeader);
+                var faService = AsmRepository.AllServices.GetFinanceService(authHeader);
+                var sbService = AsmRepository.AllServices.GetSandBoxManagerService(authHeader);
+                var agService = AsmRepository.AllServices.GetAgreementManagementService(authHeader);
+                var deviceService = AsmRepository.AllServices.GetDevicesService(authHeader);
+                var viewfService = AsmRepository.AllServices.GetViewFacadeService(authHeader);
+
+
+                ShippingOrder soc = soService.GetShippedOrders(cust_id, 0).Items.Find(t => (t.StatusId == SOMAYSHIP && t.Id.Value == so_id));
+
+                ShippingOrder the_so = soService.ShipOrder(soc, shipso_reason, null);
+
+
+                if (the_so != null)
+                {
+                    return Request.CreateResponse(HttpStatusCode.OK, the_so);
+                }
+                else
+                {
+                    var message = string.Format("error");
+                    HttpError err = new HttpError(message);
+                    return Request.CreateResponse(HttpStatusCode.OK, message);
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+            
+
 
 
         }
@@ -550,7 +598,331 @@ namespace web_api_icc_valsys_no_mvc.Controllers
             }
         }
 
-        
+
+        [HttpPost]
+        [Route("api/shippingorder/LinkDeviceThenSipped_new")]
+        public AgreementDetailCollection LinkDeviceThenSipped_new(NewLinkParams the_params)
+        {
+            ShippingOrder the_so = null;
+
+            MayShipSO(the_params.username_ad, the_params.password_ad, the_params.cust_id);
+
+            #region ship the SO
+            //2, 3, 4, 7, 10, 12, 13, 30, 393
+            Authentication_class var_auth = new Authentication_class();
+            AuthenticationHeader authHeader = var_auth.getAuthHeader(the_params.username_ad, the_params.password_ad);
+            AsmRepository.SetServiceLocationUrl(var_auth.var_service_location_url);
+
+            var soService = AsmRepository.AllServices.GetOrderManagementService(authHeader);
+            var faService = AsmRepository.AllServices.GetFinanceService(authHeader);
+            var sbService = AsmRepository.AllServices.GetSandBoxManagerService(authHeader);
+            var agService = AsmRepository.AllServices.GetAgreementManagementService(authHeader);
+            var deviceService = AsmRepository.AllServices.GetDevicesService(authHeader);
+            var viewfService = AsmRepository.AllServices.GetViewFacadeService(authHeader);
+            var productCatalogConfigurationService = AsmRepository.GetServiceProxyCachedOrDefault<IProductCatalogConfigurationService>(authHeader);
+
+            int lnb_model = 0;
+            int antenna_model = 0;
+
+            int d_tp = 0;
+            int s_tp = 0;
+            int d_model = 0;
+            int s_model = 0;
+
+            //check instock
+            int status_instock = 1;
+            for (int i = 0; i < the_params.the_serial_number_list.Count; i++)
+            {
+                if (the_params.the_serial_number_list[i] == "")
+                    continue;
+
+                Device the_device = deviceService.GetDeviceBySerialNumber(the_params.the_serial_number_list[i]);
+                if (the_device.StatusId.Value == Int32.Parse(DEVICE_STATUS_STOCK) || the_device.StatusId.Value == Int32.Parse(DEVICE_STATUS_REFURSTOCK)
+                            || the_device.StatusId.Value == Int32.Parse(DEVICE_STATUS_REPAIREDSTOCK)
+                           )
+                {
+                    status_instock = 1;
+                }
+                else
+                {
+                    status_instock = 0;
+                    break;
+                }
+            }
+
+
+            // Get the hardware agreement detail of customer
+            AgreementDetailView hardwaread = null;
+            var hardwareads = viewfService.GetAgreementDetailView(new BaseQueryRequest()
+            {
+                FilterCriteria = Op.Eq("DeviceIncluded", true) & Op.Eq("CustomerId", the_params.cust_id) & Op.Gt("Id", 0) & Op.IsNull("ProvisionedDevices"),
+                PageCriteria = new PageCriteria(1),
+                SortCriteria = new SortCriteriaCollection(){
+                        new SortCriteria()
+                        {
+                            Key = "Id",
+                            SortDirection = SortDirections.Descending
+                        }
+                    }
+            });
+
+            if (hardwareads.TotalCount == 0)
+            {
+                //Console.WriteLine("Hardware product is not captured, can't ship the shipping order for customer id : " + the_params.cust_id);
+                return null;
+            }
+            else
+            {
+                hardwaread = hardwareads.Items[0];
+
+
+            }
+
+            // If not input the shipping order id then find the shipping order id by the random hardware product which don't assign device info yet.
+            if (the_params.so_id == 0)
+            {
+                the_params.so_id = getShippingOrderByHardware(the_params.username_ad, the_params.password_ad, hardwaread.Id.Value);
+                //Console.WriteLine("Ship the Shipping Order Id is : " + the_params.so_id);
+            }
+
+
+            // get the May shipping order and shipping order line( with smartcard or Sim card in it).
+            var soc = soService.GetShippedOrders(the_params.cust_id, 0).Items.Find(t => (t.StatusId == SOMAYSHIP && t.Id.Value == the_params.so_id));
+
+
+            if (soc == null)
+            {
+                Console.WriteLine("No Shipping Order with status May Ship, please check customer id : " + the_params.cust_id);
+                //return null;
+            }
+
+            else if (soc != null)
+            {
+                int lnb_group = 0;
+                int antenna_group = 0;
+                try
+                {
+                    for (int i = 0; i < the_params.the_format_tech_prod_id_list.Count; i++)
+                    {
+
+                        //for decoder
+                        if (the_params.the_format_tech_prod_id_list[i] == 3 || the_params.the_format_tech_prod_id_list[i] == 2)
+                        {
+                            if (the_params.the_serial_number_list[i] == "")
+                                continue;
+                            else
+                            {
+
+                                string decoder_serial_number = the_params.the_serial_number_list[i];
+                                // Get random decoder and smartcard which are in stock, you should not use this since you have real device information. 
+                                Device decoder = null;
+                                Device smartcard = null;
+
+                                //decoder
+                                decoder = deviceService.GetDeviceBySerialNumber(decoder_serial_number);
+                                if (
+                                    decoder.StatusId.Value == Int32.Parse(DEVICE_STATUS_STOCK) || decoder.StatusId.Value == Int32.Parse(DEVICE_STATUS_REFURSTOCK)
+                                        || decoder.StatusId.Value == Int32.Parse(DEVICE_STATUS_REPAIREDSTOCK)
+                                    )
+                                {
+
+                                }
+                                else
+                                {
+                                    Console.WriteLine(" Decoder with serial number " + decoder_serial_number + " is not in allowed capture status!");
+                                    //return null;
+                                }
+
+                                // Identify device info to the shipping order lines
+                                var dd = identifyDevice(the_params.username_ad, the_params.password_ad, soc, the_params.the_serial_number_list[i], the_params.the_format_tech_prod_id_list[i], d_model);
+                            }
+
+                        }
+
+                        //for VC
+                        else if (the_params.the_format_tech_prod_id_list[i] == 7)
+                        {
+                            if (the_params.the_serial_number_list[i] == "")
+                                continue;
+                            else
+                            {
+
+
+                                string smartcard_serial_number = the_params.the_serial_number_list[i];
+                                // Find the shipping order lines for decoder and smartcard
+
+                                var scsoline = soc.ShippingOrderLines.Items.Find(t => t.TechnicalProductId == s_tp); //
+
+                                //vc
+                                var smartcard = deviceService.GetDeviceBySerialNumber(smartcard_serial_number);
+                                if (smartcard.StatusId.Value == Int32.Parse(DEVICE_STATUS_STOCK) || smartcard.StatusId.Value == Int32.Parse(DEVICE_STATUS_REFURSTOCK)
+                                    || smartcard.StatusId.Value == Int32.Parse(DEVICE_STATUS_REPAIREDSTOCK)
+                                   )
+                                {
+
+                                }
+                                else
+                                {
+                                    Console.WriteLine(" Smartcard with serial number " + smartcard_serial_number + " is not in allowed capture status!");
+                                    //return null;
+                                }
+
+                                var sc = identifyDevice(the_params.username_ad, the_params.password_ad, soc, the_params.the_serial_number_list[i], the_params.the_format_tech_prod_id_list[i], s_model);
+                            }
+                        }
+
+                        //for antenna
+                        else if (the_params.the_format_tech_prod_id_list[i] == 30)
+                        {
+                            antenna_group++;
+
+                            if (the_params.the_serial_number_list[i] == "")
+                                continue;
+                            else
+                            {
+                                string antenna_sn = the_params.the_serial_number_list[i];
+
+                                //antenna
+                                var antenna = deviceService.GetDeviceBySerialNumber(antenna_sn);
+                                if (antenna.StatusId.Value == Int32.Parse(DEVICE_STATUS_STOCK) || antenna.StatusId.Value == Int32.Parse(DEVICE_STATUS_REFURSTOCK)
+                                    || antenna.StatusId.Value == Int32.Parse(DEVICE_STATUS_REPAIREDSTOCK)
+                                   )
+                                {
+                                    antenna_model = antenna.ModelId.Value;
+                                }
+                                else
+                                {
+                                    Console.WriteLine(" Antenna with serial number " + antenna_sn + " is not in allowed capture status!");
+                                    //return null;
+                                }
+                                identifyDevice(the_params.username_ad, the_params.password_ad, soc, the_params.the_serial_number_list[i], the_params.the_format_tech_prod_id_list[i], antenna.ModelId.Value);
+                            }
+                        }
+
+                        //for LNB
+                        else if (the_params.the_format_tech_prod_id_list[i] == 393 || the_params.the_format_tech_prod_id_list[i] == 4)
+                        {
+                            lnb_group++;
+                            if (the_params.the_serial_number_list[i] == "")
+                                continue;
+                            else
+                            {
+                                string lnb_sn = the_params.the_serial_number_list[i];
+
+                                //lnb
+                                var lnb = deviceService.GetDeviceBySerialNumber(lnb_sn);
+                                if (lnb.StatusId.Value == Int32.Parse(DEVICE_STATUS_STOCK) || lnb.StatusId.Value == Int32.Parse(DEVICE_STATUS_REFURSTOCK)
+                                    || lnb.StatusId.Value == Int32.Parse(DEVICE_STATUS_REPAIREDSTOCK)
+                                   )
+                                {
+                                    lnb_model = lnb.ModelId.Value;
+                                }
+                                else
+                                {
+                                    Console.WriteLine(" LNB with serial number " + lnb_sn + " is not in allowed capture status!");
+                                    //return null;
+                                }
+                                identifyDevice(the_params.username_ad, the_params.password_ad, soc, the_params.the_serial_number_list[i], the_params.the_format_tech_prod_id_list[i], lnb.ModelId.Value);
+                            }
+
+                        }
+
+
+                        //for router dan simcard
+                        if (the_params.the_format_tech_prod_id_list[i] == 10 || the_params.the_format_tech_prod_id_list[i] == 13 || the_params.the_format_tech_prod_id_list[i] == 12)
+                        {
+
+                            string inet_item_serial_number = the_params.the_serial_number_list[i];
+                            // Get random decoder and smartcard which are in stock, you should not use this since you have real device information. 
+                            Device inet_item = null;
+                            Device smartcard = null;
+
+                            //inet_item
+                            inet_item = deviceService.GetDeviceBySerialNumber(inet_item_serial_number);
+                            if (
+                                inet_item.StatusId.Value == Int32.Parse(DEVICE_STATUS_STOCK) || inet_item.StatusId.Value == Int32.Parse(DEVICE_STATUS_REFURSTOCK)
+                                || inet_item.StatusId.Value == Int32.Parse(DEVICE_STATUS_REPAIREDSTOCK)
+                                )
+                            {
+
+                            }
+                            else
+                            {
+                                Console.WriteLine(" inet_item with serial number " + inet_item_serial_number + " is not in allowed capture status!");
+                                //return null;
+                            }
+
+                            // Identify device info to the shipping order lines
+                            var dd = identifyDevice(the_params.username_ad, the_params.password_ad, soc, the_params.the_serial_number_list[i], the_params.the_format_tech_prod_id_list[i], d_model);
+
+                        }
+
+
+                        var devices_per_cust = get_device_per_cust(the_params.username_ad, the_params.password_ad, the_params.cust_id);
+                        int ss = 0;
+
+                        for (int a = 0; a < devices_per_cust.Items.Count; a++)
+                        {
+                            if (the_params.the_format_tech_prod_id_list[i] == devices_per_cust.Items[a].TechnicalProductId)
+                            {
+                                if (the_params.the_serial_number_list[i] == "")
+                                    continue;
+                                else
+                                    ss = devices_per_cust.Items[a].AgreementDetailId.Value;
+
+                            }
+                        }
+
+                        // Fill the agreement detail id on the shipping order line to link the device to customer
+                        soc.ShippingOrderLines.Items.Find(t => t.TechnicalProductId == the_params.the_format_tech_prod_id_list[i]).AgreementDetailId = ss; //assign sesuai commercialproductid yg terdapat di var hardwarereads
+
+                        soc.ShippingOrderLines.Items.Find(t => t.TechnicalProductId == the_params.the_format_tech_prod_id_list[i]).ReceivedQuantity = 1;
+
+                    }
+
+                    
+
+                    //code for ship the so, then serial number will show in tab device
+                    the_so =  soService.ShipOrder(soc, shipso_reason, null);
+
+                   
+
+                }
+                catch (Exception ex)
+                {
+                    return null;
+                }
+
+            }
+
+            #endregion ship the SO
+
+            if (the_so != null)
+            {
+                var agreementManagementService = AsmRepository.GetServiceProxyCachedOrDefault<IAgreementManagementService>(authHeader);
+                AgreementDetailCollection adc = agreementManagementService.GetAgreementDetailsForCustomer(the_params.cust_id, 1);
+                return adc;
+            }
+            else
+                return null;
+        }
+        public DevicePerAgreementDetailCollection get_device_per_cust(string username_ad, string password_ad, int cust_id_param)
+        {
+            Authentication_class var_auth = new Authentication_class();
+            AuthenticationHeader authHeader = var_auth.getAuthHeader(username_ad, password_ad);
+            AsmRepository.SetServiceLocationUrl(var_auth.var_service_location_url);
+
+            var agreementManagementService = AsmRepository.GetServiceProxyCachedOrDefault<IAgreementManagementService>(authHeader);
+            int agreementId = 99;
+            //In ICC, a Page contains up to 20 records. For ALL
+            //records, set Page to 0;
+            int page = 0;
+            //Call the method and display the results.
+            DevicePerAgreementDetailCollection dpads = agreementManagementService.GetDevicesPerAgreementDetailForCustomer(cust_id_param, page);
+
+            return dpads;
+        }
+
         //  Get Shipping Order by Hardware Product Agreeemntdetail ID
         public int getShippingOrderByHardware(String username_ad, String password_ad, int hw_agreementdetail_id)
         {

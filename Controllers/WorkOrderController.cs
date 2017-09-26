@@ -198,6 +198,8 @@ namespace web_api_icc_valsys_no_mvc.Controllers
             //will be performed.
             workOrder.AddressId = customer_data.servAddressId;
 
+            workOrder.StockHandlerId = 1;
+
             var_geodef_id = find_geodefinition(customer_data.username_ad, customer_data.password_ad, customer_data.postal_code);
             var_servprovserv_id = getserviceproviderservice_byserviceprovideridandgeoid(customer_data.username_ad, customer_data.password_ad, customer_data.servProvId, customer_data.servTypeId, var_geodef_id);
 
@@ -215,37 +217,40 @@ namespace web_api_icc_valsys_no_mvc.Controllers
             workOrder.WorkOrderServices = customer_data.the_services;
             //workOrder.WorkOrderServices = new WorkOrderServiceCollection
             //    {
-            //        new WorkOrderService
-            //        {
-            //            //Required. Replace this value with a valid ID for the work order
-            //            //service.
-            //            ServiceId = 3,
-            //            //Replace this value with the serial number of the device that needs to
-            //            //be repaired.
-            //            DeviceSerialNumber = "2010001019",
-            //            //Replace this value with a valid Reason ID for event 62.
-            //            //ReasonId = 14659,
-            //            //Replace this value with how many of the services the customer needs.
-            //            Quantity = 1
-            //        },
+            //        //new WorkOrderService
+            //        //{
+            //        //    //Required. Replace this value with a valid ID for the work order
+            //        //    //service.
+            //        //    ServiceId = 3,
+            //        //    //Replace this value with the serial number of the device that needs to
+            //        //    //be repaired.
+            //        //    DeviceSerialNumber = "2010001019",
+            //        //    //Replace this value with a valid Reason ID for event 62.
+            //        //    //ReasonId = 14659,
+            //        //    //Replace this value with how many of the services the customer needs.
+            //        //    Quantity = 1
+            //        //},
 
-            //        new WorkOrderService()
-            //        {
-            //            ServiceId= 70,  //Installation service your CSR choose.
-            //            //ReasonId = 62,
-            //            Quantity=1
-            //        },
-            //        new WorkOrderService()
-            //        {
-            //            ServiceId= 73,  //Installation service your CSR choose.
-            //            //ReasonId = 62,
-            //            Quantity=1
-            //        },
+            //        //new WorkOrderService()
+            //        //{
+            //        //    ServiceId= 70,  //Installation service your CSR choose.
+            //        //    //ReasonId = 62,
+            //        //    Quantity=1
+            //        //},
+            //        //new WorkOrderService()
+            //        //{
+            //        //    ServiceId= 73,  //Installation service your CSR choose.
+            //        //    //ReasonId = 62,
+            //        //    Quantity=1
+            //        //},
             //        new WorkOrderService()
             //        {
             //            ServiceId= 146,      // If CSR choose transport fee.
+            //            //SandboxSkipValidation=false,
             //            //ReasonId = 62,
-            //            Quantity=1
+            //            ProductId = 161,
+            //            //OverridePrice = 1000000,
+            //            Quantity=2
             //        }
             //    };
             #endregion
