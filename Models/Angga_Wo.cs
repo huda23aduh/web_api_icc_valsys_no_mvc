@@ -16,5 +16,10 @@ namespace web_api_icc_valsys_no_mvc.Models
         public string work_desc_param { get; set; }
         public string action_taken_param { get; set; }
         public int reason_id { get; set; }
+
+        public string reschedule_date_param { get; set; }
+        public int starting_timeslot_id { get; set; }
+
+
     }
 }

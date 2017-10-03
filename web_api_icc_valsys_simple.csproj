@@ -263,10 +263,12 @@
     <Compile Include="Models\Customers.cs" />
     <Compile Include="Models\DocumentRequest.cs" />
     <Compile Include="Models\DuplicationCheckParams.cs" />
+    <Compile Include="Models\Format_tp_agdid.cs" />
     <Compile Include="Models\Hardware_list.cs" />
     <Compile Include="Models\ICC_customer.cs" />
     <Compile Include="Models\ICC_customerResponse.cs" />
     <Compile Include="Models\NewHw.cs" />
+    <Compile Include="Models\NewLinkParams.cs" />
     <Compile Include="Models\Productexample.cs" />
     <Compile Include="Models\Provinces.cs" />
     <Compile Include="Models\PurchaseOrder.cs" />

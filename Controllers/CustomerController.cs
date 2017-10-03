@@ -461,7 +461,7 @@ namespace web_api_icc_valsys_no_mvc.Controllers
             List<int> offers = new List<int>();
 
             #region add offer/promo
-            for (i=0; i < customer_data.the_total_promo; i++)
+            for (i = 0; i < customer_data.the_total_promo; i++)
             {
                 offers.Add(customer_data.the_list_promo[i]);
             }
@@ -923,6 +923,8 @@ namespace web_api_icc_valsys_no_mvc.Controllers
                 custService = AsmRepository.AllServices.GetCustomersService(authHeader);
 
                 int sandbox_id = sandboxService.CreateSandbox();
+                
+                
                 //var commercial_product = productcService.GetCommercialProduct(commercial_product_id);
                 //if (commercial_product == null)
                 //{
@@ -932,6 +934,7 @@ namespace web_api_icc_valsys_no_mvc.Controllers
 
                 int business_unit_id = custService.GetCustomer(customer_id).BusinessUnitId.Value;
 
+                int first_prod = 0;
                 int reason120 = 65;
                 int agreement_id = 0;
                 var agreements = agService.GetAgreementsForCustomerId(customer_id, 1);
@@ -941,14 +944,18 @@ namespace web_api_icc_valsys_no_mvc.Controllers
                     agreement_id = agreements.Items[0].Id.Value;
 
                     AgreementDetailWithOfferDefinitionsCollection productList = new AgreementDetailWithOfferDefinitionsCollection();
-                    for(int i = 0; i < customer_data_json.the_total_com_prod; i++)
+                    ProductCaptureOfferInfoCollection offerInfos = new ProductCaptureOfferInfoCollection();
+
+                    for (int i = 0; i < customer_data_json.the_total_com_prod; i++)
                     {
-                        if(
+                        // for product (hardware)
+                        if (
                             customer_data_json.the_list_com_prod_id[i] == 1 || customer_data_json.the_list_com_prod_id[i] == 2 ||
                             customer_data_json.the_list_com_prod_id[i] == 199 || customer_data_json.the_list_com_prod_id[i] == 200 ||
-                            customer_data_json.the_list_com_prod_id[i] == 308
-                          ) // for product (hardware) with id 1
+                            customer_data_json.the_list_com_prod_id[i] == 308 || customer_data_json.the_list_com_prod_id[i] == 309
+                          )
                         {
+
                             productList.Add(new AgreementDetailWithOfferDefinitions()
                             {
                                 AgreementDetail = new AgreementDetail()
@@ -957,7 +964,6 @@ namespace web_api_icc_valsys_no_mvc.Controllers
                                     AgreementId = agreement_id,
                                     Segmentation = customer_data_json.the_segmentation_list[i],
                                     
-
                                     ChargePeriod = param_periods,
 
                                     CommercialProductId = customer_data_json.the_list_com_prod_id[i],    // comm_prod_id
@@ -972,8 +978,20 @@ namespace web_api_icc_valsys_no_mvc.Controllers
                                 },
                             });
                         }
+
+                        // for product (software)
                         else
                         {
+                            if (first_prod == 0)
+                            {
+                                foreach (var zz in offers)
+                                {
+                                    offerInfos.Add(new ProductCaptureOfferInfo() { AppliedOfferDefinitionId = zz });
+                                }
+                            }
+                            else
+
+                                offerInfos = null;
                             productList.Add(new AgreementDetailWithOfferDefinitions()
                             {
 
@@ -981,6 +999,8 @@ namespace web_api_icc_valsys_no_mvc.Controllers
                                 {
                                     CustomerId = customer_id,
                                     AgreementId = agreement_id,
+
+
                                     ChargePeriod = param_periods,
                                     Segmentation = customer_data_json.the_segmentation_list[i],
                                     CommercialProductId = customer_data_json.the_list_com_prod_id[i],   // comm_prod_id
@@ -991,11 +1011,13 @@ namespace web_api_icc_valsys_no_mvc.Controllers
                                     BusinessUnitId = business_unit_id,
                                     DisconnectionSetting = PayMedia.ApplicationServices.AgreementManagement.ServiceContracts.DisconnectionDateSettings.QuoteBased
                                 },
+                                ProductCaptureOfferInfos = offerInfos
                             });
+                            first_prod = 1;
                         }
                     }
-                    
-                    
+
+
                     ProductCaptureParams param = new ProductCaptureParams()
                     {
                         SandboxId = sandbox_id,
@@ -1004,7 +1026,7 @@ namespace web_api_icc_valsys_no_mvc.Controllers
                         {
                             CreateReason = reason120
                         },
-                        OfferDefinitions = offers,
+                        //OfferDefinitions = offers,
                         SkipWorkOrderGeneration = true,
                         SkipShippingOrderGeneration = false,
                         AgreementDetailWithOfferDefinitions = productList
@@ -1014,6 +1036,7 @@ namespace web_api_icc_valsys_no_mvc.Controllers
                         //    {
                         //        AgreementDetail = new AgreementDetail()
                         //        {
+                                   
                         //            CustomerId = customer_id,
                         //            AgreementId = agreement_id,
                         //            ChargePeriod = ChargePeriods.Monthly,
@@ -1032,7 +1055,10 @@ namespace web_api_icc_valsys_no_mvc.Controllers
 
                     };
 
+                    
+
                     var result = agService.ManageProductCapture(param);
+                    
 
                     if (result.AgreementDetails.Items.Count == 0)
                     {
@@ -1042,6 +1068,7 @@ namespace web_api_icc_valsys_no_mvc.Controllers
 
                         //The "false" value in this line of code rolls back the sandbox.
                         sandboxService.FinalizeSandbox(sandbox_id, false);
+
                         return 0;
 
                     }
@@ -1049,7 +1076,7 @@ namespace web_api_icc_valsys_no_mvc.Controllers
                     {
                         //The "true" value in this line of code commits the sandbox.
                         sandboxService.FinalizeSandbox(sandbox_id, true);
-
+                        
                         foreach (var item in result.AgreementDetails)
                         {
                             //Console.WriteLine("Congratulations! New Product ID = {0}.", item.Id);
@@ -1072,6 +1099,7 @@ namespace web_api_icc_valsys_no_mvc.Controllers
             }
 
         }
+
         public int getBubyZipcode(string postcode, ICC_customer customer_data_json)
         {
             Authentication_class var_auth = new Authentication_class();

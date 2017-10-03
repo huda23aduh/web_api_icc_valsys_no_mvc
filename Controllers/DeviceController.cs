@@ -12,6 +12,8 @@ using PayMedia.ApplicationServices.Devices.ServiceContracts;
 using web_api_icc_valsys_no_mvc.Models;
 using PayMedia.ApplicationServices.OrderManagement.ServiceContracts.DataContracts;
 using PayMedia.ApplicationServices.ViewFacade.ServiceContracts.DataContracts;
+using PayMedia.ApplicationServices.AgreementManagement.BizObj;
+using PayMedia.ApplicationServices.AgreementManagement.ServiceContracts;
 
 namespace web_api_icc_valsys_no_mvc.Controllers
 {
@@ -69,6 +71,35 @@ namespace web_api_icc_valsys_no_mvc.Controllers
         //    //var result = ((IEnumerable<string>)provinces).Cast<object>().ToList();
         //    return list;
         //}
+
+        [HttpGet]
+        //[ActionName("GetDeviceById")]
+        [Route("api/{username_ad}/{password_ad}/device/getcustomerdeviceview/{cust_id}")]
+        public HttpResponseMessage getcustomerdeviceview(int cust_id, String username_ad, String password_ad)
+        {
+            Authentication_class var_auth = new Authentication_class();
+            AuthenticationHeader authHeader = var_auth.getAuthHeader(username_ad, password_ad);
+            AsmRepository.SetServiceLocationUrl(var_auth.var_service_location_url);
+
+            var devicesService = AsmRepository.GetServiceProxyCachedOrDefault<IDevicesService>(authHeader);
+            var agreementManagementService = AsmRepository.GetServiceProxyCachedOrDefault<IAgreementManagementService>(authHeader);
+            //var provinces = devicesService.GetDeviceById(id); //parameter id
+            var dpads = agreementManagementService.GetDevicesPerAgreementDetailForCustomer(cust_id, 0).OrderBy(t => t.AgreementDetailId).ThenBy(t => t.TechnicalProductId);
+
+
+            if (dpads != null)
+            {
+                return Request.CreateResponse(HttpStatusCode.OK, dpads);
+            }
+            else
+            {
+                var message = string.Format("error");
+                HttpError err = new HttpError(message);
+                return Request.CreateResponse(HttpStatusCode.OK, message);
+            }
+
+            //return devices;
+        }
 
         [HttpGet]
         //[ActionName("GetDeviceById")]

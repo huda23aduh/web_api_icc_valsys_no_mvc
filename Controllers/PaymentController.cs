@@ -61,7 +61,8 @@ namespace web_api_icc_valsys_no_mvc.Controllers
 					//CreatedByEvent = 500, //for manual debit or credit
                     //CreatedByEvent = 515, //for manual payment without fullfill quote
                     //PaidForInvoice = ,
-
+                    
+                    CreateDate = DateTime.Now,
 					BaseAmount = deposite_amount,
                     //FinanceBatchCode = "Payment Mode : Cash",
                     //ThirdPartyTransactionDescription = "Cheque # :123",

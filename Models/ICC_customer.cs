@@ -10,6 +10,8 @@ namespace web_api_icc_valsys_no_mvc.Models
         public String username_ad { get; set; }
         public String password_ad { get; set; }
 
+        public int total_shipping_order { get; set; }
+
         public List<Address_Billing> AddressBilling { get; set; }
         public List<Adress_Agreement> AddressAgreement { get; set; }
         public List<Address_Install> AddressInstall { get; set; }
