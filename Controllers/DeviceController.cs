@@ -12,6 +12,8 @@ using PayMedia.ApplicationServices.Devices.ServiceContracts;
 using web_api_icc_valsys_no_mvc.Models;
 using PayMedia.ApplicationServices.OrderManagement.ServiceContracts.DataContracts;
 using PayMedia.ApplicationServices.ViewFacade.ServiceContracts.DataContracts;
+using PayMedia.ApplicationServices.AgreementManagement.ServiceContracts.DataContracts;
+using PayMedia.ApplicationServices.AgreementManagement.ServiceContracts;
 
 namespace web_api_icc_valsys_no_mvc.Controllers
 {
@@ -37,38 +39,36 @@ namespace web_api_icc_valsys_no_mvc.Controllers
         const int indosat_sim_model_id = 56;
         const int router_model_id = 53;
 
-        // GET api/values
-        //public IEnumerable<string> Get()
-        //{
-        //    Authentication_class var_auth = new Authentication_class();
-        //    AuthenticationHeader authHeader = var_auth.getAuthHeader(username_ad, password_ad);
-        //    AsmRepository.SetServiceLocationUrl(var_auth.var_service_location_url);
+        
 
-        //    var custService = AsmRepository.AllServices.GetCustomersConfigurationService(authHeader);
-        //    var devicesService = AsmRepository.GetServiceProxyCachedOrDefault<IDevicesService>(authHeader);
+        [HttpGet]
+        //[ActionName("GetDeviceById")]
+        [Route("api/{username_ad}/{password_ad}/device/getcustomerdeviceview/{cust_id}")]
+        public HttpResponseMessage getcustomerdeviceview(int cust_id, String username_ad, String password_ad)
+        {
+            Authentication_class var_auth = new Authentication_class();
+            AuthenticationHeader authHeader = var_auth.getAuthHeader(username_ad, password_ad);
+            AsmRepository.SetServiceLocationUrl(var_auth.var_service_location_url);
 
-        //    FindDeviceCriteria criteria = new FindDeviceCriteria();
+            var devicesService = AsmRepository.GetServiceProxyCachedOrDefault<IDevicesService>(authHeader);
+            var agreementManagementService = AsmRepository.GetServiceProxyCachedOrDefault<IAgreementManagementService>(authHeader);
+            //var provinces = devicesService.GetDeviceById(id); //parameter id
+            var dpads = agreementManagementService.GetDevicesPerAgreementDetailForCustomer(cust_id, 0).OrderBy(t => t.AgreementDetailId).ThenBy(t => t.TechnicalProductId);
 
-        //    var provinces = custService.GetProvinceByCountry(1);
-        //    var devices = devicesService.GetType();
 
+            if (dpads != null)
+            {
+                return Request.CreateResponse(HttpStatusCode.OK, dpads);
+            }
+            else
+            {
+                var message = string.Format("error");
+                HttpError err = new HttpError(message);
+                return Request.CreateResponse(HttpStatusCode.OK, message);
+            }
 
-        //    List<string> list = new List<string>();
-        //    //Provinces ok1 = new Provinces();
-
-        //    // Loop through List with foreach.
-        //    //foreach (var device in devices)
-        //    //{
-        //    //    var a = province.Id.ToString();
-        //    //    list.Add(a);
-        //    //    var b = province.Name.ToString();
-        //    //    list.Add(b);
-        //    //}
-
-        //    //var provinces_listString = provinces.OrderBy(x => x.Id).Select(x => new Provinces { Id_nya = (int) x.Id, Name_nya = (string) x.Name }).ToList();
-        //    //var result = ((IEnumerable<string>)provinces).Cast<object>().ToList();
-        //    return list;
-        //}
+            //return devices;
+        }
 
         [HttpGet]
         //[ActionName("GetDeviceById")]
@@ -176,7 +176,145 @@ namespace web_api_icc_valsys_no_mvc.Controllers
             }
         }
 
-        
+
+        [HttpPost]
+        [ActionName("doSendContacts")]
+        [Route("api/device/linkdevice")]
+        public HttpResponseMessage linkdevice([FromBody] Link_dev_params req)
+        {
+            #region Authentication
+            Authentication_class var_auth = new Authentication_class();
+            AuthenticationHeader authHeader = var_auth.getAuthHeader(req.username_ad, req.password_ad);
+            AsmRepository.SetServiceLocationUrl(var_auth.var_service_location_url);
+
+            #endregion
+
+            int cust_id = req.cust_id;
+            
+            SoftwarePerAgreementDetail gg = null;
+            int var_resp = 0;
+
+            var qq = AsmRepository.AllServices.GetAgreementManagementService(authHeader);
+            var devicesService = AsmRepository.GetServiceProxyCachedOrDefault<IDevicesService>(authHeader);
+            var agreementManagementService = AsmRepository.GetServiceProxyCachedOrDefault<IAgreementManagementService>(authHeader);
+            var prod_catalog_serv = AsmRepository.AllServices.GetProductCatalogConfigurationService(authHeader);
+
+            var cust_detail = qq.GetAgreementDetailsForCustomer(cust_id, 0);
+            var dev = agreementManagementService.GetDevicesPerAgreementDetailForCustomer(cust_id, 0).OrderBy(t => t.AgreementDetailId).ThenBy(t => t.TechnicalProductId);
+
+            //500174098
+
+            foreach (var aa in req.item_hw)
+            {
+                foreach (var the_bb in req.item_sw)
+                {
+                    if (aa.segment_id == the_bb.segment_id)
+                    {
+                        var cc = cust_detail.ToList().Find(t => t.CommercialProductId == the_bb.com_prod_id);
+
+                        var dd = devicesService.GetDeviceBySerialNumber(aa.serial_number);
+
+                        var ee = dev.ToList().Find(q => q.DeviceId == dd.Id);
+
+                        int[] arr1 = new int[] { the_bb.com_prod_id };
+
+                        var ff = prod_catalog_serv.GetTechnicalProductsForCommercialProductIds(arr1, 0);
+
+
+                        SoftwarePerAgreementDetail rr = new SoftwarePerAgreementDetail();
+                        rr.AgreementDetailId = cc.Id.Value;
+                        rr.DevicePerAgreementDetailId = ee.Id.Value;
+                        rr.TechnicalProductId = ff.Items[0].Id.Value;
+
+                        gg = agreementManagementService.CreateSoftwarePerAgreementDetail(rr, 99117);
+
+                        if (gg != null)
+                            var_resp = 1;
+                    }
+                }
+            }
+
+            if (var_resp != 0)
+            {
+                return Request.CreateResponse(HttpStatusCode.OK, gg);
+            }
+            else
+                return Request.CreateResponse(HttpStatusCode.OK, "an error has occured");
+
+
+
+        }
+
+
+        [HttpGet]
+        [Route("api/{username_ad}/{password_ad}/device/swapDeviceBySerialNumber/{cust_id}/{old_serial_number}/{new_serial_number}")]
+        public Device swapDeviceBySerialNumber(String username_ad, String password_ad, int cust_id, string old_serial_number, string new_serial_number)
+        {
+            int reason156_RetriveDevice = 99146;
+            int reason183_Returned = 99149;
+            int reason156_InStock = 99152;
+            int reason156_ReturnToManufactory = 99151;
+            int reason156_RepairedStock = 99153;
+            int reason156_RefurbishedStock = 99154;
+            int reason156_Damaged = 99155;
+
+            int to_stockhandler_id = 1015;   // the destination stocck handler of the device
+
+
+            int param_new_dev_reason = 118;
+            int param_old_dev_reason = 117;
+
+
+            Authentication_class var_auth = new Authentication_class();
+            AuthenticationHeader authHeader = var_auth.getAuthHeader(username_ad, password_ad);
+            AsmRepository.SetServiceLocationUrl(var_auth.var_service_location_url);
+
+            var devicesService = AsmRepository.GetServiceProxyCachedOrDefault<IDevicesService>(authHeader);
+            var agreementManagementService = AsmRepository.GetServiceProxyCachedOrDefault<IAgreementManagementService>(authHeader);
+
+
+            var dev = agreementManagementService.GetDevicesPerAgreementDetailForCustomer(cust_id, 0).OrderBy(t => t.AgreementDetailId).ThenBy(t => t.TechnicalProductId);
+
+            var dd = devicesService.GetDeviceBySerialNumber(old_serial_number);
+
+            var dd_new = devicesService.GetDeviceBySerialNumber(new_serial_number);
+
+            var ee = dev.ToList().Find(q => q.DeviceId == dd.Id);
+
+            var zz = new SwapDeviceBySpearParameters()
+            {
+                DevicePerAgreementDetailId = ee.Id,
+                EffectiveDate = DateTime.Now,
+                OldDeviceId = ee.DeviceId,
+                OldDeviceSwapReasonId = param_old_dev_reason,
+
+                NewDeviceId = dd_new.Id,
+                NewDeviceSwapReasonId = param_new_dev_reason,
+
+                ReturnToStockHandlerId = 1015
+
+            };
+
+            try
+            {
+                agreementManagementService.SwapDeviceBySpear(zz);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("exception : " + ex);
+            }
+
+            updateDeviceStatus(username_ad, password_ad, old_serial_number, reason156_InStock);
+
+
+            //-----------       ---------------
+            Device devices = devicesService.GetDeviceBySerialNumber(new_serial_number);
+
+            return devices;
+
+        }
+
+
         [HttpGet]
         [Route("api/{username_ad}/{password_ad}/device/retrieveDevice/{serial_number}")]
         public Device retrieveDevice(String username_ad, String password_ad, string serial_number)

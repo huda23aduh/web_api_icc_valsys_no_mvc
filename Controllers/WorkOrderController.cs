@@ -15,11 +15,14 @@ using PayMedia.ApplicationServices.Customers.ServiceContracts.DataContracts;
 using System.Globalization;
 using PayMedia.ApplicationServices.Customers.ServiceContracts;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace web_api_icc_valsys_no_mvc.Controllers
 {
     public class WorkOrderController : ApiController
     {
+        StringBuilder er = new StringBuilder();
+
         [HttpGet]
         [Route("api/{username_ad}/{password_ad}/workorder/GetWorkOrderByCustomerId/{CustomerId_param}")]
         public HttpResponseMessage GetWorkOrderByCustomerId(String username_ad, String password_ad, int CustomerId_param)
@@ -198,6 +201,8 @@ namespace web_api_icc_valsys_no_mvc.Controllers
             //will be performed.
             workOrder.AddressId = customer_data.servAddressId;
 
+            workOrder.StockHandlerId = 1;
+
             var_geodef_id = find_geodefinition(customer_data.username_ad, customer_data.password_ad, customer_data.postal_code);
             var_servprovserv_id = getserviceproviderservice_byserviceprovideridandgeoid(customer_data.username_ad, customer_data.password_ad, customer_data.servProvId, customer_data.servTypeId, var_geodef_id);
 
@@ -215,37 +220,40 @@ namespace web_api_icc_valsys_no_mvc.Controllers
             workOrder.WorkOrderServices = customer_data.the_services;
             //workOrder.WorkOrderServices = new WorkOrderServiceCollection
             //    {
-            //        new WorkOrderService
-            //        {
-            //            //Required. Replace this value with a valid ID for the work order
-            //            //service.
-            //            ServiceId = 3,
-            //            //Replace this value with the serial number of the device that needs to
-            //            //be repaired.
-            //            DeviceSerialNumber = "2010001019",
-            //            //Replace this value with a valid Reason ID for event 62.
-            //            //ReasonId = 14659,
-            //            //Replace this value with how many of the services the customer needs.
-            //            Quantity = 1
-            //        },
+            //        //new WorkOrderService
+            //        //{
+            //        //    //Required. Replace this value with a valid ID for the work order
+            //        //    //service.
+            //        //    ServiceId = 3,
+            //        //    //Replace this value with the serial number of the device that needs to
+            //        //    //be repaired.
+            //        //    DeviceSerialNumber = "2010001019",
+            //        //    //Replace this value with a valid Reason ID for event 62.
+            //        //    //ReasonId = 14659,
+            //        //    //Replace this value with how many of the services the customer needs.
+            //        //    Quantity = 1
+            //        //},
 
-            //        new WorkOrderService()
-            //        {
-            //            ServiceId= 70,  //Installation service your CSR choose.
-            //            //ReasonId = 62,
-            //            Quantity=1
-            //        },
-            //        new WorkOrderService()
-            //        {
-            //            ServiceId= 73,  //Installation service your CSR choose.
-            //            //ReasonId = 62,
-            //            Quantity=1
-            //        },
+            //        //new WorkOrderService()
+            //        //{
+            //        //    ServiceId= 70,  //Installation service your CSR choose.
+            //        //    //ReasonId = 62,
+            //        //    Quantity=1
+            //        //},
+            //        //new WorkOrderService()
+            //        //{
+            //        //    ServiceId= 73,  //Installation service your CSR choose.
+            //        //    //ReasonId = 62,
+            //        //    Quantity=1
+            //        //},
             //        new WorkOrderService()
             //        {
             //            ServiceId= 146,      // If CSR choose transport fee.
+            //            //SandboxSkipValidation=false,
             //            //ReasonId = 62,
-            //            Quantity=1
+            //            ProductId = 161,
+            //            //OverridePrice = 1000000,
+            //            Quantity=2
             //        }
             //    };
             #endregion
@@ -476,7 +484,7 @@ namespace web_api_icc_valsys_no_mvc.Controllers
 
 
             //Complete WorkOrder
-            var var_complete_wo = CompleteWorkOrder(wou, reason_complete_wo, username_ad, password_ad, work_desc_param, action_taken_param, completion_reason_id);
+            var var_complete_wo = CompleteWorkOrder(wou, reason_complete_wo, username_ad, password_ad, work_desc_param, action_taken_param);
             //Console.WriteLine(DateTime.Now + " : Close workorder " + wou.Id.Value);
 
             if (wou != null)
@@ -895,7 +903,7 @@ namespace web_api_icc_valsys_no_mvc.Controllers
 
 
             //Complete WorkOrder
-            var wou = CompleteWorkOrder(wocs, reason_complete_wo,  username_ad, password_ad, work_desc_param, action_taken_param, completion_reason_id);
+            var wou = CompleteWorkOrder(wocs, completion_reason_id,  username_ad, password_ad, work_desc_param, action_taken_param);
             //var temp_work_description = wou.ProblemDescription;
             //wou.ProblemDescription = "#" + temp_work_description;
             //Console.WriteLine(DateTime.Now + " : Close workorder " + wou.Id.Value);
@@ -916,6 +924,7 @@ namespace web_api_icc_valsys_no_mvc.Controllers
         [Route("api/workorder/ForAnggaOnly_ActionWorkOrderByWorkOrderId")]
         public HttpResponseMessage ForAnggaOnly_ActionWorkOrderByWorkOrderId(Angga_Wo the_var)
         {
+            
             WorkOrder result_wo_var = null;
             Angga_Wo var_satu = the_var;
 
@@ -924,6 +933,11 @@ namespace web_api_icc_valsys_no_mvc.Controllers
             AuthenticationHeader authHeader = var_auth.getAuthHeader(the_var.username_ad, the_var.password_ad);
             AsmRepository.SetServiceLocationUrl(var_auth.var_service_location_url);
             #endregion
+
+            string the_json = JsonConvert.SerializeObject(the_var, Formatting.Indented);
+
+            er.Append("RECEIVE JSON PARAMETER - " + DateTime.Now + Environment.NewLine + the_json + Environment.NewLine + Environment.NewLine);
+            var_auth.write_log(er);
 
             #region condition
 
@@ -946,12 +960,20 @@ namespace web_api_icc_valsys_no_mvc.Controllers
 
 
             if (result_wo_var != null)
+            {
                 return Request.CreateResponse(HttpStatusCode.OK, result_wo_var);
+                er.Append("GET RESPONSE - " + DateTime.Now + Environment.NewLine + result_wo_var + Environment.NewLine + Environment.NewLine);
+                var_auth.write_log(er);
+            }
+                
             else
             {
                 var message = string.Format("An Error Has Occured With WorkOrder ID = ", the_var.wo_id_param);
                 HttpError err = new HttpError(message);
                 return Request.CreateResponse(HttpStatusCode.BadRequest, err);
+
+                er.Append("GET RESPONSE - " + DateTime.Now + Environment.NewLine + message + Environment.NewLine + Environment.NewLine);
+                var_auth.write_log(er);
             }
 
         }
@@ -962,7 +984,7 @@ namespace web_api_icc_valsys_no_mvc.Controllers
             Authentication_class var_auth = new Authentication_class();
             AuthenticationHeader authHeader = var_auth.getAuthHeader(the_params.username_ad, the_params.password_ad);
             AsmRepository.SetServiceLocationUrl(var_auth.var_service_location_url);
-            #endregion
+            #endregion Authenticate and create proxies
 
             var wocs = AsmRepository.AllServices.GetWorkforceService(authHeader).GetWorkOrder(the_params.wo_id_param);  // change 123 to your work order id.
 
@@ -977,26 +999,28 @@ namespace web_api_icc_valsys_no_mvc.Controllers
             const int reason_cancel_wo_RequestedBySub = 99367;
 
             const int reason_cancel_wo_technicalissue = 24431;
-            wocs.AssociateId = AsmRepository.AllServices.GetCustomersService(authHeader).GetAssociatesByRequest(new BaseQueryRequest()
-            {
-                FilterCriteria = new CriteriaCollection() {
-                            new Criteria() {
-                                Key = "CustomerId", Operator=Operator.Equal,Value=wocs.ServiceProviderId.Value.ToString()
-                            },
-                            new Criteria() {
-                                Key = "Active", Operator=Operator.Equal,Value="true"
-                            },
-                            new Criteria() {
-                                Key = "AssociateTypeId", Operator=Operator.Equal,Value="1"
-                            },
-                        }
-            }).Items[0].Id.Value;
+            //wocs.AssociateId = AsmRepository.AllServices.GetCustomersService(authHeader).GetAssociatesByRequest(new BaseQueryRequest()
+            //{
+            //    FilterCriteria = new CriteriaCollection() {
+            //                new Criteria() {
+            //                    Key = "CustomerId", Operator=Operator.Equal,Value=wocs.ServiceProviderId.Value.ToString()
+            //                },
+            //                new Criteria() {
+            //                    Key = "Active", Operator=Operator.Equal,Value="true"
+            //                },
+            //                new Criteria() {
+            //                    Key = "AssociateTypeId", Operator=Operator.Equal,Value="1"
+            //                },
+            //            }
+            //}).Items[0].Id.Value;
 
             // Cancel Work Order, uncomment it if you want to use. When you use it, you can’t complete work order anymore. So comment below complete work order when you use it
             var wou = CancelWorkOrder(wocs, reason_cancel_wo_RequestedBySub, the_params.username_ad, the_params.password_ad, the_params.work_desc_param, the_params.action_taken_param);
             var temp_work_description = wou.ProblemDescription;
             wou.ProblemDescription = "#" + temp_work_description;
 
+            er.Append("PROCESS - " + DateTime.Now + Environment.NewLine + wou + Environment.NewLine + Environment.NewLine);
+            var_auth.write_log(er);
 
 
             if (wou != null)
@@ -1048,8 +1072,12 @@ namespace web_api_icc_valsys_no_mvc.Controllers
             
 
             //Complete WorkOrder
-            var wou = CompleteWorkOrder(wocs, reason_complete_wo, the_params.username_ad, the_params.password_ad, the_params.work_desc_param, the_params.action_taken_param, the_params.reason_id);
-            
+            var wou = CompleteWorkOrder(wocs, the_params.reason_id, the_params.username_ad, the_params.password_ad, the_params.work_desc_param, the_params.action_taken_param);
+
+            er.Append("PROCESS - " + DateTime.Now + Environment.NewLine + wou + Environment.NewLine + Environment.NewLine);
+            var_auth.write_log(er);
+
+
             if (wou != null)
             {
                 return wou;
@@ -1093,7 +1121,10 @@ namespace web_api_icc_valsys_no_mvc.Controllers
 
             //Assign WorkOder
             var wou = UpdateWorkOrderWithOutTimeSlot(wocs, the_params.work_desc_param, reason_assign_wo, the_params.username_ad, the_params.password_ad, the_params.action_taken_param);
-            
+
+            er.Append("PROCESS - " + DateTime.Now + Environment.NewLine + wou + Environment.NewLine + Environment.NewLine);
+            var_auth.write_log(er);
+
             // update work order without change status
             wou.ProblemDescription = the_params.work_desc_param;
             //wou = UpdateWorkOrderWithTimeSlot(wou, reason_update_wo, username_ad, password_ad);
@@ -1114,49 +1145,91 @@ namespace web_api_icc_valsys_no_mvc.Controllers
 
         public WorkOrder RescheduleWo_post(Angga_Wo the_params)
         {
-            #region Authenticate and create proxies
             Authentication_class var_auth = new Authentication_class();
             AuthenticationHeader authHeader = var_auth.getAuthHeader(the_params.username_ad, the_params.password_ad);
             AsmRepository.SetServiceLocationUrl(var_auth.var_service_location_url);
+
+            WorkOrder wou = null;
+
+            var custService = AsmRepository.AllServices.GetCustomersService(authHeader);
+            var custcService = AsmRepository.AllServices.GetCustomersConfigurationService(authHeader);
+            var woService = AsmRepository.AllServices.GetWorkforceService(authHeader);
+            var wocService = AsmRepository.AllServices.GetWorkforceConfigurationService(authHeader);
+
             var wocs = AsmRepository.AllServices.GetWorkforceService(authHeader).GetWorkOrder(the_params.wo_id_param);  // change 123 to your work order id.
+            DateTime the_dateTime = DateTime.ParseExact(the_params.reschedule_date_param, "yyyy-MM-dd hh:mm:ss tt", CultureInfo.InvariantCulture);
+            //DateTime the_dateTime24 = DateTime.ParseExact(the_params.reschedule_date_param, "yyyy-MM-dd hh:mm:ss", CultureInfo.InvariantCulture);
+            int reasonid = 20941;
 
-            const int reason_assign_wo = 19545;
-            const int reason_inprogress_wo = 99125;
-            const int reason_reschedule_wo = 20941;
-            const int reason_complete_wo = 23035;
-            const int reason_update_wo = 12;
+            if (the_params.reason_id == 0)
+                the_params.reason_id = reasonid;
 
-            // Edit WorkOrder, only change the service date time, you can change more like technician(AssociatedId) or the problemdescription.
-
-            wocs.AssociateId = AsmRepository.AllServices.GetCustomersService(authHeader).GetAssociatesByRequest(new BaseQueryRequest()
+            try
             {
-                FilterCriteria = new CriteriaCollection() {
-                            new Criteria() {
-                                Key = "CustomerId", Operator=Operator.Equal,Value=wocs.ServiceProviderId.Value.ToString()
-                            },
-                            new Criteria() {
-                                Key = "Active", Operator=Operator.Equal,Value="true"
-                            },
-                            new Criteria() {
-                                Key = "AssociateTypeId", Operator=Operator.Equal,Value="1"
-                            },
-                        }
-            }).Items[0].Id.Value;
+                TimeSlotDescription[] timeslots = null;
 
-            // reschedule work order : current work order status must Working
-            var wou = UpdateWorkOrderWithOutTimeSlot(wocs, the_params.work_desc_param, reason_reschedule_wo, the_params.username_ad, the_params.password_ad, the_params.action_taken_param);
+                var va = custService.GetAddress(wocs.AddressId.Value);
 
+                var geo = custcService.FindGeoDefinitions(new GeoDefinitionCriteria()
+                {
+                    PostalCode = va.PostalCode
+                });
 
+                int spid = wocs.ServiceProviderId.Value;
+                int serviceTypeId = wocs.ServiceTypeId.Value;
+                int[] geos = new int[1];
+                geos[0] = geo.Items[0].Id.Value;
 
-            if (wou != null)
-            {
-                return wou;
+                // Get Service Provider Service Info
+                var sps = woService.GetServiceProviderServicesByServiceProviderIdServiceTypeIdAndGeoDefIds(spid, serviceTypeId, geos, 0);
+
+                // Get all avaiable timeslot
+                foreach (var sps1 in sps.Items)
+                {
+                    timeslots = woService.GetTimeSlotsByServiceProviderServiceId(sps1.Id.Value, the_dateTime);
+                }
+
+                if (timeslots == null)
+                {
+                    return null;
+                }
+                else
+                {
+
+                    // Here, i used the first avaiable time slot. For MNC,  please use the timeslot  that the CSR choose. It is better pass TimeSlotDescription as input parameter
+                    wou = woService.UpdateWorkOrderWithStartingTimeslot(wocs, new TimeSlotAllocationParameters
+                    {
+                        StartingTimeSlotId = 1, //hardcode
+                        AllocationOverrideType = TimeSlotAllocationOverrideType.Capacity,
+                        
+                        ServiceDate = the_dateTime, // 
+                        ServiceProviderServiceId = wocs.ServiceProviderServiceId
+                    }, reasonid);
+
+                    string temp_work_description = wou.ProblemDescription;
+                    string temp_action_taken = wou.ActionTaken;
+                    
+
+                    wou.ServiceDateTime = the_dateTime;
+                    wou.ProblemDescription = temp_work_description + "#" + the_params.work_desc_param;
+                    wou.ActionTaken = temp_action_taken + "#" + the_params.action_taken_param;
+                    wou.ReasonKey = the_params.reason_id;
+                    
+
+                    var wou_1 = woService.UpdateWorkOrder(wou, wou.ReasonKey.Value);
+
+                    er.Append("PROCESS - " + DateTime.Now + Environment.NewLine + wou_1 + Environment.NewLine + Environment.NewLine);
+                    var_auth.write_log(er);
+
+                }
+
             }
-            else
+            catch (Exception ex)
             {
                 return null;
             }
-            #endregion
+            
+            return wou;
         }
 
         public WorkOrder AssignToWorkingWo_post(Angga_Wo the_params)
@@ -1194,6 +1267,8 @@ namespace web_api_icc_valsys_no_mvc.Controllers
             //Change WorKOrder to Working status
             var wou = UpdateWorkOrderWithOutTimeSlot(wocs, the_params.work_desc_param, reason_inprogress_wo, the_params.username_ad, the_params.password_ad, the_params.action_taken_param);
 
+            er.Append("PROCESS - " + DateTime.Now + Environment.NewLine + wou + Environment.NewLine + Environment.NewLine);
+            var_auth.write_log(er);
 
             if (wou != null)
             {
@@ -1247,7 +1322,9 @@ namespace web_api_icc_valsys_no_mvc.Controllers
             //Console.WriteLine("change workorder " + wou.Id.Value + " to In Progress.");
             wou = UpdateWorkOrderWithOutTimeSlot(wou, the_params.work_desc_param, reason_inprogress_wo, the_params.username_ad, the_params.password_ad, the_params.action_taken_param);
 
-            
+            er.Append("PROCESS - " + DateTime.Now + Environment.NewLine + wou + Environment.NewLine + Environment.NewLine);
+            var_auth.write_log(er);
+
             if (wou != null)
             {
                 return wou;
@@ -1301,6 +1378,9 @@ namespace web_api_icc_valsys_no_mvc.Controllers
             var wou = UpdateProbDescWorkOrder(wocs, the_params.work_desc_param, reason_update_wo, the_params.username_ad, the_params.password_ad, the_params.action_taken_param);
             var temp_work_description = wou.ProblemDescription;
             wou.ProblemDescription = "#" + temp_work_description;
+
+            er.Append("PROCESS - " + DateTime.Now + Environment.NewLine + wou + Environment.NewLine + Environment.NewLine);
+            var_auth.write_log(er);
 
             if (wou != null)
             {
@@ -1440,7 +1520,7 @@ namespace web_api_icc_valsys_no_mvc.Controllers
         #endregion OPERATION OF WORKORDER
 
 
-        public WorkOrder CompleteWorkOrder(WorkOrder wo_param, int reason_param, String username_ad, String password_ad, string work_desc_param, string action_taken, int completion_reason_id_param)
+        public WorkOrder CompleteWorkOrder(WorkOrder wo_param, int reason_param, String username_ad, String password_ad, string work_desc_param, string action_taken)
         {
             Authentication_class var_auth = new Authentication_class();
             AuthenticationHeader authHeader = var_auth.getAuthHeader(username_ad, password_ad);
@@ -1452,12 +1532,12 @@ namespace web_api_icc_valsys_no_mvc.Controllers
             {
                 string temp_work_description = wo_param.ProblemDescription;
                 string temp_action_taken = wo_param.ActionTaken;
-                wo_param.ProblemDescription = temp_work_description + "#" + work_desc_param;
-                wo_param.ActionTaken = temp_action_taken + "#" + action_taken;
-                wo_param.CompletedDateTime = DateTime.Now;
-                
-                
-                ww = woService.CompleteWorkOrder(wo_param, 99442);
+                wo.ProblemDescription = temp_work_description + "#" + work_desc_param;
+                wo.ActionTaken = temp_action_taken + "#" + action_taken;
+                wo.CompletedDateTime = DateTime.Now;
+                wo.ReasonKey = reason_param;
+
+                ww = woService.CompleteWorkOrder(wo, reason_param);
                 //return ww;
                 
             }
@@ -1594,7 +1674,7 @@ namespace web_api_icc_valsys_no_mvc.Controllers
             AuthenticationHeader authHeader = var_auth.getAuthHeader(username_ad, password_ad);
             AsmRepository.SetServiceLocationUrl(var_auth.var_service_location_url);
             IWorkforceService woService = AsmRepository.AllServices.GetWorkforceService(authHeader);
-            WorkOrder wou = AsmRepository.AllServices.GetWorkforceService(authHeader).GetWorkOrder(wo.Id.Value);
+
             //WorkOrder wou = null;
             try
             {
@@ -1602,6 +1682,8 @@ namespace web_api_icc_valsys_no_mvc.Controllers
                 string temp_action_taken = wo.ActionTaken;
                 wo.ProblemDescription = temp_work_description + "#" + work_desc_param;
                 wo.ActionTaken = temp_action_taken + "#" + action_taken;
+                //wo.CompletedDateTime = DateTime.Now;
+                //wo.CancelledDateTime = DateTime.Now;
 
                 WorkOrder ww = woService.CancelWorkOrder(wo, reason_id);
                 return ww;

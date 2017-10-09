@@ -29,6 +29,7 @@ using PayMedia.ApplicationServices.InvoiceRun.ServiceContracts;
 
 using PayMedia.ApplicationServices.CustomFields.ServiceContracts;
 using System.Text;
+using PayMedia.ApplicationServices.OfferManagement.ServiceContracts;
 
 namespace web_api_icc_valsys_no_mvc.Controllers
 {
@@ -461,7 +462,7 @@ namespace web_api_icc_valsys_no_mvc.Controllers
             List<int> offers = new List<int>();
 
             #region add offer/promo
-            for (i=0; i < customer_data.the_total_promo; i++)
+            for (i = 0; i < customer_data.the_total_promo; i++)
             {
                 offers.Add(customer_data.the_list_promo[i]);
             }
@@ -923,15 +924,12 @@ namespace web_api_icc_valsys_no_mvc.Controllers
                 custService = AsmRepository.AllServices.GetCustomersService(authHeader);
 
                 int sandbox_id = sandboxService.CreateSandbox();
-                //var commercial_product = productcService.GetCommercialProduct(commercial_product_id);
-                //if (commercial_product == null)
-                //{
-                //    //Console.WriteLine("Commercial Product with ID : " + commercial_product_id + " Not Exist!!!");
-                //    return 0;
-                //}
+                
 
                 int business_unit_id = custService.GetCustomer(customer_id).BusinessUnitId.Value;
 
+                int agd_id = 0;
+                int first_inet_prod = 0;
                 int reason120 = 65;
                 int agreement_id = 0;
                 var agreements = agService.GetAgreementsForCustomerId(customer_id, 1);
@@ -941,14 +939,18 @@ namespace web_api_icc_valsys_no_mvc.Controllers
                     agreement_id = agreements.Items[0].Id.Value;
 
                     AgreementDetailWithOfferDefinitionsCollection productList = new AgreementDetailWithOfferDefinitionsCollection();
-                    for(int i = 0; i < customer_data_json.the_total_com_prod; i++)
+                    ProductCaptureOfferInfoCollection offerInfos = new ProductCaptureOfferInfoCollection();
+
+                    for (int i = 0; i < customer_data_json.the_total_com_prod; i++)
                     {
-                        if(
+                        // for product (hardware)
+                        if (
                             customer_data_json.the_list_com_prod_id[i] == 1 || customer_data_json.the_list_com_prod_id[i] == 2 ||
                             customer_data_json.the_list_com_prod_id[i] == 199 || customer_data_json.the_list_com_prod_id[i] == 200 ||
-                            customer_data_json.the_list_com_prod_id[i] == 308
-                          ) // for product (hardware) with id 1
+                            customer_data_json.the_list_com_prod_id[i] == 308 || customer_data_json.the_list_com_prod_id[i] == 309
+                          )
                         {
+
                             productList.Add(new AgreementDetailWithOfferDefinitions()
                             {
                                 AgreementDetail = new AgreementDetail()
@@ -957,7 +959,6 @@ namespace web_api_icc_valsys_no_mvc.Controllers
                                     AgreementId = agreement_id,
                                     Segmentation = customer_data_json.the_segmentation_list[i],
                                     
-
                                     ChargePeriod = param_periods,
 
                                     CommercialProductId = customer_data_json.the_list_com_prod_id[i],    // comm_prod_id
@@ -972,16 +973,31 @@ namespace web_api_icc_valsys_no_mvc.Controllers
                                 },
                             });
                         }
-                        else
+
+                        //for internet
+                        else if (customer_data_json.the_list_com_prod_id[i] == 243 || customer_data_json.the_list_com_prod_id[i] == 50 || customer_data_json.the_list_com_prod_id[i] == 49)
                         {
+                            if (first_inet_prod == 0)
+                            {
+                                foreach (var tt in offers)
+                                {
+                                    if (getoffer_def(customer_data_json.username_ad, customer_data_json.password_ad, tt, customer_data_json.the_list_com_prod_id[i]))
+                                        offerInfos.Add(new ProductCaptureOfferInfo() { AppliedOfferDefinitionId = tt });
+                                }
+                            }
+                            else
+                                offerInfos = new ProductCaptureOfferInfoCollection();
+
                             productList.Add(new AgreementDetailWithOfferDefinitions()
                             {
 
                                 AgreementDetail = new AgreementDetail()
                                 {
+
                                     CustomerId = customer_id,
                                     AgreementId = agreement_id,
                                     ChargePeriod = param_periods,
+                                    Id = agd_id,
                                     Segmentation = customer_data_json.the_segmentation_list[i],
                                     CommercialProductId = customer_data_json.the_list_com_prod_id[i],   // comm_prod_id
                                     DeviceIncluded = true,
@@ -991,11 +1007,64 @@ namespace web_api_icc_valsys_no_mvc.Controllers
                                     BusinessUnitId = business_unit_id,
                                     DisconnectionSetting = PayMedia.ApplicationServices.AgreementManagement.ServiceContracts.DisconnectionDateSettings.QuoteBased
                                 },
+
+                                ProductCaptureOfferInfos = offerInfos
+
                             });
+                            offerInfos = new ProductCaptureOfferInfoCollection();
+                            first_inet_prod = 1;
+                        }
+
+
+                        else
+                        {
+                            if (customer_data_json.the_segmentation_list[i] == 1)
+                            {
+                                foreach (var tt in offers)
+                                {
+                                    if (getoffer_def( customer_data_json.username_ad, customer_data_json.password_ad, tt, customer_data_json.the_list_com_prod_id[i]))
+                                        offerInfos.Add(new ProductCaptureOfferInfo() { AppliedOfferDefinitionId = tt });
+                                }
+                            }
+                            else
+                                offerInfos = new ProductCaptureOfferInfoCollection();
+
+
+                            productList.Add(new AgreementDetailWithOfferDefinitions()
+                            {
+
+                                AgreementDetail = new AgreementDetail()
+                                {
+
+                                    CustomerId = customer_id,
+                                    AgreementId = agreement_id,
+                                    ChargePeriod = param_periods,
+                                    Id = agd_id,
+                                    Segmentation = customer_data_json.the_segmentation_list[i],
+                                    CommercialProductId = customer_data_json.the_list_com_prod_id[i],   // comm_prod_id
+                                    DeviceIncluded = true,
+                                    DevicesOnHand = false,
+                                    Quantity = 1,
+                                    FinanceOptionId = 2,   // FinanceOptionId : 2 is Subscription for software product, if you need add hardware product, you need use 1 as sold, 3 as rent
+                                    BusinessUnitId = business_unit_id,
+                                    DisconnectionSetting = PayMedia.ApplicationServices.AgreementManagement.ServiceContracts.DisconnectionDateSettings.QuoteBased
+                                },
+
+                                ProductCaptureOfferInfos = offerInfos
+
+                            });
+                            offerInfos = new ProductCaptureOfferInfoCollection();
                         }
                     }
-                    
-                    
+
+                    List<int> ss = new List<int>();
+                    foreach (var oo in offers)
+                    {
+                        if (getoffer_level_agreement(customer_data_json.username_ad, customer_data_json.password_ad, oo) == ApplyToLevelTypes.Agreement)
+                            ss.Add(oo);
+                    }
+
+
                     ProductCaptureParams param = new ProductCaptureParams()
                     {
                         SandboxId = sandbox_id,
@@ -1004,44 +1073,24 @@ namespace web_api_icc_valsys_no_mvc.Controllers
                         {
                             CreateReason = reason120
                         },
-                        OfferDefinitions = offers,
+                        OfferDefinitions = ss,
                         SkipWorkOrderGeneration = true,
                         SkipShippingOrderGeneration = false,
                         AgreementDetailWithOfferDefinitions = productList
-                        //AgreementDetailWithOfferDefinitions = new AgreementDetailWithOfferDefinitionsCollection()
-                        //{
-                        //    new AgreementDetailWithOfferDefinitions()
-                        //    {
-                        //        AgreementDetail = new AgreementDetail()
-                        //        {
-                        //            CustomerId = customer_id,
-                        //            AgreementId = agreement_id,
-                        //            ChargePeriod = ChargePeriods.Monthly,
-                        //            CommercialProductId = commercial_product_id,
-                        //            // DevicesOnHand : For software product, put false, for hardware product, put true.
-                        //            DevicesOnHand = false,
-                        //            // Quantity : Please do not put number more than 1. It must be 1 only.
-                        //            Quantity = 1,  
-                        //            // FinanceOptionId : 2 is Subscription for software product, if you need add hardware product, you need use 1 (Sold) or 3 (Rent).
-                        //            FinanceOptionId = financeoption,
-                        //            BusinessUnitId = business_unit_id,
-                        //            DisconnectionSetting = PayMedia.ApplicationServices.AgreementManagement.ServiceContracts.DisconnectionDateSettings.QuoteBased
-                        //        },
-                        //    }
-                        //}
+                        
 
                     };
 
+                    
+
                     var result = agService.ManageProductCapture(param);
+                    
 
                     if (result.AgreementDetails.Items.Count == 0)
                     {
-                        //Console.WriteLine("Warnings : " + result.WarningMessage);
-
-                        //Console.WriteLine("Something bad happened. Sandbox rolled back.");
-
                         //The "false" value in this line of code rolls back the sandbox.
                         sandboxService.FinalizeSandbox(sandbox_id, false);
+
                         return 0;
 
                     }
@@ -1049,7 +1098,7 @@ namespace web_api_icc_valsys_no_mvc.Controllers
                     {
                         //The "true" value in this line of code commits the sandbox.
                         sandboxService.FinalizeSandbox(sandbox_id, true);
-
+                        
                         foreach (var item in result.AgreementDetails)
                         {
                             //Console.WriteLine("Congratulations! New Product ID = {0}.", item.Id);
@@ -1072,6 +1121,57 @@ namespace web_api_icc_valsys_no_mvc.Controllers
             }
 
         }
+
+        static bool getoffer_def(string username_ad, string password_ad, int offerid_param, int comm_prod_id_param)
+        {
+            Authentication_class var_auth = new Authentication_class();
+            AuthenticationHeader authHeader = var_auth.getAuthHeader(username_ad, password_ad);
+            AsmRepository.SetServiceLocationUrl(var_auth.var_service_location_url);
+
+            var offer_Serv_2 = AsmRepository.AllServices.GetProductCatalogConfigurationService(authHeader);
+            var offer_Serv_1 = AsmRepository.AllServices.GetOfferManagementConfigurationService(authHeader);
+
+
+            var a = offer_Serv_1.GetOfferDefinition(offerid_param);
+            if (a.ApplyToLevel == ApplyToLevelTypes.AgreementDetail)
+            {
+                if (a.ProductCombination == 0)
+                {
+                    if (a.ProductAppliedTo == comm_prod_id_param)
+                        return true;
+                    else
+                        return false;
+                }
+                else
+                {
+                    var b = offer_Serv_2.GetProductCombination(a.ProductCombination.Value);
+
+                    if (b.Combinations.Items.Find(t => t.CommercialProductId.Value == comm_prod_id_param) != null)
+                        return true;
+                    else
+                        return false;
+                }
+
+
+            }
+            else
+                return false;
+
+        }
+        static ApplyToLevelTypes getoffer_level_agreement(string username_ad, string password_ad,  int offerid_param)
+        {
+            Authentication_class var_auth = new Authentication_class();
+            AuthenticationHeader authHeader = var_auth.getAuthHeader(username_ad, password_ad);
+            AsmRepository.SetServiceLocationUrl(var_auth.var_service_location_url);
+
+            var offer_Serv_1 = AsmRepository.AllServices.GetOfferManagementConfigurationService(authHeader);
+
+
+            var a = offer_Serv_1.GetOfferDefinition(offerid_param);
+            return a.ApplyToLevel;
+
+        }
+
         public int getBubyZipcode(string postcode, ICC_customer customer_data_json)
         {
             Authentication_class var_auth = new Authentication_class();
@@ -1566,20 +1666,30 @@ namespace web_api_icc_valsys_no_mvc.Controllers
         {
             Authentication_class var_auth = new Authentication_class();
             AuthenticationHeader ah = var_auth.getAuthHeader(username_ad, password_ad);
-
             AsmRepository.SetServiceLocationUrl(var_auth.var_service_location_url);
             var customersService = AsmRepository.GetServiceProxyCachedOrDefault<ICustomersService>(ah);
-            
+
+
+            StringBuilder er = new StringBuilder();
+            er.Append("asasasasasasasasas" + Environment.NewLine);
+
+            var_auth.write_log(er);
+
+
+
             var customers = customersService.GetCustomer(id);
-            return Request.CreateResponse(HttpStatusCode.OK, customers);
-                
-            
-                //var message = string.Format("customers with id = {0} not found", id);
-                //HttpError err = new HttpError(message);
-                //return Request.CreateResponse(HttpStatusCode.OK, err);
-            
 
-
+            if (customers != null)
+            {
+                return Request.CreateResponse(HttpStatusCode.OK, customers);
+            }
+            else
+            {
+                var message = string.Format("An Error Has Occured With customers ID = ", customers.Id);
+                HttpError err = new HttpError(message);
+                return Request.CreateResponse(HttpStatusCode.BadRequest, err);
+            }
+            
         }
 
 

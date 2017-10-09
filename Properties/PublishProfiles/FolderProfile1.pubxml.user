@@ -953,13 +953,13 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>01/28/2015 04:04:30</publishTime>
     </File>
     <File Include="bin/web_api_icc_valsys_no_mvc.dll">
-      <publishTime>09/20/2017 12:11:38</publishTime>
+      <publishTime>10/07/2017 16:40:18</publishTime>
     </File>
     <File Include="bin/web_api_icc_valsys_no_mvc.pdb">
-      <publishTime>09/20/2017 12:11:38</publishTime>
+      <publishTime>10/07/2017 16:40:18</publishTime>
     </File>
     <File Include="bin/XmlDocument.xml">
-      <publishTime>09/20/2017 12:11:38</publishTime>
+      <publishTime>10/07/2017 16:40:18</publishTime>
     </File>
     <File Include="Global.asax">
       <publishTime>03/19/2017 15:21:20</publishTime>
@@ -974,7 +974,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>03/19/2017 15:32:46</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>09/15/2017 11:07:54</publishTime>
+      <publishTime>06/10/2017 17:28:02</publishTime>
     </File>
   </ItemGroup>
 </Project>
