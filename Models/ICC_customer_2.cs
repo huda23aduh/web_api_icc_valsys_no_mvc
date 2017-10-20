@@ -5,17 +5,15 @@ using System.Web;
 
 namespace web_api_icc_valsys_no_mvc.Models
 {
-    public class ICC_customer
+    public class ICC_customer_2
     {
         public String username_ad { get; set; }
         public String password_ad { get; set; }
 
-        public int total_shipping_order { get; set; }
-
         public List<Address_Billing> AddressBilling { get; set; }
         public List<Adress_Agreement> AddressAgreement { get; set; }
         public List<Address_Install> AddressInstall { get; set; }
-        //public string DeliveryAddress { get; set; }
+
         public int CustomerCaptureCategoryId { get; set; }
         public int ClassId { get; set; }
         public int SegmentationId { get; set; }
@@ -74,20 +72,12 @@ namespace web_api_icc_valsys_no_mvc.Models
         public int invoicing_profile_id { get; set; }
         public int invoicing_profile_method { get; set; }
 
-        public int the_total_com_prod { get; set; }
-        public List<int> the_list_com_prod_id { get; set; }
-
-        public int the_total_promo { get; set; }
-        public List<int> the_list_promo { get; set; }
-
-        public int the_total_segmentation { get; set; }
-        public List<int> the_segmentation_list { get; set; }
-
-        public int the_total_finance_option_id { get; set; }
-        public List<int> the_finance_option_id_list { get; set; }
-
         public String charge_period { get; set; }
+
+
+        public List<SoftwareMappings> softwareMappings { get; set; }
+        public List<HardwareMappings> hardwareMappings { get; set; }
+        public List<int> the_list_promo { get; set; }
 
     }
 }
-

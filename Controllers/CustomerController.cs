@@ -29,18 +29,811 @@ using PayMedia.ApplicationServices.InvoiceRun.ServiceContracts;
 
 using PayMedia.ApplicationServices.CustomFields.ServiceContracts;
 using System.Text;
+using PayMedia.ApplicationServices.OfferManagement.ServiceContracts;
 
 namespace web_api_icc_valsys_no_mvc.Controllers
 {
     public class CustomerController : ApiController
     {
-
-        [Route("api/customer/AddOrder")] //JSON EXAMPLE method
+        [Route("api/customer/AddNewCustomerBundle_2")] //JSON EXAMPLE method to add new customer
         [HttpPost]
-        public PurchaseOrder AddOrder([FromBody] PurchaseOrder order)
+        public HttpResponseMessage AddNewCustomerBundle_2([FromBody]ICC_customer_2 customer_data)
         {
-            return order;
+            List<SoftwareMappings> softwareMappings = customer_data.softwareMappings;
+            List<HardwareMappings> hardwareMappings = customer_data.hardwareMappings;
+
+            //List<SoftwareMappings> softwareMappings = new List<SoftwareMappings>();
+            //List<HardwareMappings> hardwareMappings = new List<HardwareMappings>();
+
+            //hardwareMappings.Add(new HardwareMappings() { CommercialProductId = 309, HWGroudId = 1, FinanceOptionId = 3 });
+            //hardwareMappings.Add(new HardwareMappings() { CommercialProductId = 309, HWGroudId = 2, FinanceOptionId = 3 });
+            //hardwareMappings.Add(new HardwareMappings() { CommercialProductId = 199, HWGroudId = 3, FinanceOptionId = 1 });
+
+            //softwareMappings.Add(new SoftwareMappings() { CommercialProductId = 28, HWGroudId = 1, IsInternet = 0, FinanceOptionId = 2 });
+            //softwareMappings.Add(new SoftwareMappings() { CommercialProductId = 33, HWGroudId = 2, IsInternet = 0, FinanceOptionId = 2 });
+            //softwareMappings.Add(new SoftwareMappings() { CommercialProductId = 34, HWGroudId = 2, IsInternet = 0, FinanceOptionId = 2 });
+            //softwareMappings.Add(new SoftwareMappings() { CommercialProductId = 23, HWGroudId = 2, IsInternet = 0, FinanceOptionId = 2 });
+            //softwareMappings.Add(new SoftwareMappings() { CommercialProductId = 49, HWGroudId = 3, IsInternet = 1, FinanceOptionId = 2 });
+
+            //List<int> offerList = new List<int>(new int[] { 972, 973, 974, 975 });
+
+            List<int> offerList = customer_data.the_list_promo;
+
+            var customer = CreateCustomer(customer_data);
+            var financialAccount = CreateFinancialAccount(customer, customer_data);
+            var agreement = CreateAgreement(financialAccount, customer_data);
+            var agreementDetailsResult = CreateAgreementDetails(customer, financialAccount, agreement, softwareMappings, hardwareMappings, offerList, customer_data);
+
+
+            if (customer != null)
+            {
+                return Request.CreateResponse(HttpStatusCode.OK, customer);
+            }
+            else
+            {
+                var message = string.Format("error");
+                HttpError err = new HttpError(message);
+                return Request.CreateResponse(HttpStatusCode.OK, message);
+            }
+
         }
+
+        public static Customer CreateCustomer(ICC_customer_2 customer_data_param)
+        {
+            #region AuthorizationHeader
+            //Here we assign our login credentials.
+            Authentication_class var_auth = new Authentication_class();
+            AuthenticationHeader ah = var_auth.getAuthHeader(customer_data_param.username_ad, customer_data_param.password_ad);
+            //This is the location of the ASM services.
+            AsmRepository.SetServiceLocationUrl(var_auth.var_service_location_url);
+            //Here we create proxies for all the services we will need.
+            var customersService = AsmRepository.GetServiceProxyCachedOrDefault<ICustomersService>(ah);
+            var customersConfigurationService = AsmRepository.GetServiceProxyCachedOrDefault<ICustomersConfigurationService>(ah);
+            var financeService = AsmRepository.GetServiceProxyCachedOrDefault<IFinanceService>(ah);
+            var financeConfigurationService = AsmRepository.GetServiceProxyCachedOrDefault<IFinanceConfigurationService>(ah);
+            var invoiceRunService = AsmRepository.GetServiceProxyCachedOrDefault<IInvoiceRunService>(ah);
+            var agreementManagementService = AsmRepository.GetServiceProxyCachedOrDefault<IAgreementManagementService>(ah);
+            var pricingService = AsmRepository.GetServiceProxyCachedOrDefault<IPricingService>(ah);
+            var productCatalogService = AsmRepository.GetServiceProxyCachedOrDefault<IProductCatalogService>(ah);
+            var sandboxService = AsmRepository.GetServiceProxyCachedOrDefault<ISandBoxManagerService>(ah);
+            #endregion
+            
+
+            #region Create Customer
+            //Configuration controls many default values for a new customer.
+            //Call this method to get the defaults. You can pass them in when you create
+            //a new customer, or you can override the defaults by passing in different
+            //values when you create the new customer.
+            CustomerDefaults customerDefault = customersConfigurationService.GetCustomerDefaults();
+            //This value is a reason ID for ICC system event 100.
+            //You can get this from ICustomersConfigurationService.GetLookups
+            //(LookupLists.ReasonCustomerCreate).
+            var customerReasons = customersConfigurationService.GetLookups
+                (PayMedia.ApplicationServices.Customers.ServiceContracts.LookupLists.ReasonCustomerCreate);
+
+            //foreach (var reason in customerReasons)
+            //{
+            //    //Display all the configured reasons for event 156.
+            //    Console.WriteLine("Reason ID {0} Description: {1}", reason.Key, reason.Description);
+            //}
+            //Console.WriteLine("Press Enter to continue.");
+            //Console.ReadLine();
+
+            var customerCreateReason = customerReasons[0];
+            //Instantiate a new Customer.
+            Customer customer = new Customer();
+            //Configuration controls which values are required. In our environment,
+            //customer class and customer type are required, so we pass in the
+            //default values here.
+            customer.ClassId = customer_data_param.ClassId;
+            customer.TypeId = customer_data_param.TypeId;
+
+            DateTime myDate = DateTime.ParseExact(customer_data_param.BirthDate, "yyyy-MM-dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
+            customer.BirthDate = myDate;
+            customer.ReferenceTypeKey = 1;
+            customer.ReferenceNumber = "1029384756";
+            customer.LanguageKey = "E";
+            customer.SegmentationKey = customer_data_param.SegmentationId;
+            customer.BusinessUnitId = getBubyZipcode_2(customer_data_param.PostalCode, customer_data_param);
+
+            //This value is a reference number from an external system. You can pass it in,
+            //and ICC will store it.
+
+            //Then, you can use it later to find the customer.
+            customer.ExternalReference = "API_TEST";
+            //ICC can store many different types of addresses, but the DefaultAddress
+            //is always required when you create a new Customer object.
+            customer.DefaultAddress = new DefaultAddress();
+
+            customer.DefaultAddress.Email = customer_data_param.Email;
+
+            //Notice that the customer's name is stored in the DefaultAddress.
+            customer.DefaultAddress.PropertyTypeId = customer_data_param.PropertyTypeId;
+            customer.DefaultAddress.CustomerCaptureCategory = (CustomerCaptureCategory)customer_data_param.CustomerCaptureCategoryId;
+            customer.DefaultAddress.FirstName = customer_data_param.FirstName;
+            customer.DefaultAddress.MiddleName = customer_data_param.MiddleName;
+            customer.DefaultAddress.Surname = customer_data_param.Surname;
+
+            customer.DefaultAddress.BigCity = customer_data_param.BigCity;
+            customer.DefaultAddress.SmallCity = customer_data_param.SmallCity;
+            customer.DefaultAddress.WorkPhone = customer_data_param.WorkPhone;
+            customer.DefaultAddress.Fax1 = customer_data_param.EmergencyPhone;
+            customer.DefaultAddress.HomePhone = customer_data_param.HomePhone;
+
+            customer.DefaultAddress.Fax2 = customer_data_param.MobilePhone;
+            customer.DefaultAddress.ValidAddressId = customer_data_param.ValidAddressId;
+            customer.DefaultAddress.PropertyTypeId = customer_data_param.PropertyTypeId;
+            customer.DefaultAddress.Street = customer_data_param.Street;
+            customer.DefaultAddress.Extra = customer_data_param.Address_line2;
+            customer.DefaultAddress.ExtraExtra = customer_data_param.Address_line3;
+            customer.DefaultAddress.TitleId = customer_data_param.TitleId;
+            customer.DefaultAddress.CountryId = customer_data_param.CountryId;
+            customer.DefaultAddress.PostalCode = customer_data_param.PostalCode;
+            customer.DefaultAddress.HouseNumberNumeric = customer_data_param.HouseNumberNumeric;
+
+            customer.DefaultAddress.HouseNumberAlpha = customer_data_param.HouseNumberAlpha;
+            customer.DefaultAddress.FlatOrApartment = customer_data_param.Flat;
+            customer.DefaultAddress.LandMark = customer_data_param.Landmark;
+            customer.DefaultAddress.Directions = customer_data_param.Directions;
+
+            //NOTE: If your configuration requires a Valid Address, or if it is
+            //configured to validate addresses, you must pass in
+            //values that correspond to a Valid Address in the database. Otherwise, ICC will
+            //throw an error. If your configuration requires ValidAddresses, you can
+            //simply pass in a ValidAddressId like this:
+            //customer.DefaultAddress.ValidAddressId = 217;
+            //This call creates the customer and commits him to the database.
+
+            Customer newCustomer = customersService.CreateCustomer(customer, Convert.ToInt32(customerCreateReason.Key));
+
+            #region emergency field
+            var cf = new customFieldHandler_2(ah, customer_data_param);
+            cf.addAddressCustomField_2("Emergency Contact Name", newCustomer.DefaultAddress.Id.Value, customer_data_param.EmergencyContactName);
+            cf.addAddressCustomField_2("Emergency Contact Relationship", newCustomer.DefaultAddress.Id.Value, customer_data_param.EmergencyContactRelationship);
+            cf.addAddressCustomField_2("Emergency Contact Address", newCustomer.DefaultAddress.Id.Value, customer_data_param.EmergencyContactAddress);
+            cf.addAddressCustomField_2("GPS latitude and longitude", newCustomer.DefaultAddress.Id.Value, customer_data_param.GeoLocation);
+
+            #endregion emergency field
+
+            #region Create multiple address
+            //address biling
+            addAddress_2(1, customer_data_param, newCustomer, customer_data_param.AddressBilling[0].PostalCode, customer_data_param.AddressBilling[0].Address_line1_Addr_billing, customer_data_param.AddressBilling[0].Address_line2_Addr_billing, newCustomer.Id.Value, customer_data_param.AddressBilling[0].MobilePhone_Addr_billing, customer_data_param.AddressBilling[0].HomePhone_Addr_billing, customer_data_param.AddressBilling[0].WorkPhone_Addr_billing, customer_data_param.AddressBilling[0].WorkPhone_Addr_billing, customer_data_param.AddressBilling[0].Email_Addr_billing, customer_data_param.AddressBilling[0].Landmark_Addr_billing, customer_data_param.AddressBilling[0].Directions_Addr_billing);
+
+            ////address work order
+            addAddress_2(2, customer_data_param, newCustomer, customer_data_param.AddressInstall[0].PostalCode, customer_data_param.AddressInstall[0].Address_line1_Addr_install, customer_data_param.AddressInstall[0].Address_line2_Addr_install, newCustomer.Id.Value, customer_data_param.AddressInstall[0].MobilePhone_Addr_install, customer_data_param.AddressInstall[0].HomePhone_Addr_install, customer_data_param.AddressInstall[0].WorkPhone_Addr_install, customer_data_param.AddressInstall[0].WorkPhone_Addr_install, customer_data_param.AddressInstall[0].Email_Addr_install, customer_data_param.AddressInstall[0].Landmark_Addr_install, customer_data_param.AddressInstall[0].Directions_Addr_install);
+
+            ////address agreement
+            addAddress_2(3, customer_data_param, newCustomer, customer_data_param.AddressAgreement[0].PostalCode, customer_data_param.AddressAgreement[0].Address_line1_Addr_agreement, customer_data_param.AddressAgreement[0].Address_line2_Addr_agreement, newCustomer.Id.Value, customer_data_param.AddressAgreement[0].MobilePhone_Addr_agreement, customer_data_param.AddressAgreement[0].HomePhone_Addr_agreement, customer_data_param.AddressAgreement[0].WorkPhone_Addr_agreement, customer_data_param.AddressAgreement[0].WorkPhone_Addr_agreement, customer_data_param.AddressInstall[0].Email_Addr_install, customer_data_param.AddressAgreement[0].Landmark_Addr_agreement, customer_data_param.AddressInstall[0].Directions_Addr_install);
+
+
+            #endregion Create multiple address
+
+            #endregion Create Customer
+
+            return newCustomer;
+        }
+
+        private static ProductCaptureResults CreateAgreementDetails(Customer customer, FinancialAccount financialAccount, Agreement agreement, List<SoftwareMappings> softwareMappings, List<HardwareMappings> hardwareMappings, List<int> offerList, ICC_customer_2 customer_data_param)
+        {
+            #region AuthorizationHeader
+            //Here we assign our login credentials.
+            Authentication_class var_auth = new Authentication_class();
+            AuthenticationHeader ah = var_auth.getAuthHeader(customer_data_param.username_ad, customer_data_param.password_ad);
+            //This is the location of the ASM services.
+            AsmRepository.SetServiceLocationUrl(var_auth.var_service_location_url);
+            //Here we create proxies for all the services we will need.
+            var customersService = AsmRepository.GetServiceProxyCachedOrDefault<ICustomersService>(ah);
+            var customersConfigurationService = AsmRepository.GetServiceProxyCachedOrDefault<ICustomersConfigurationService>(ah);
+            var financeService = AsmRepository.GetServiceProxyCachedOrDefault<IFinanceService>(ah);
+            var financeConfigurationService = AsmRepository.GetServiceProxyCachedOrDefault<IFinanceConfigurationService>(ah);
+            var invoiceRunService = AsmRepository.GetServiceProxyCachedOrDefault<IInvoiceRunService>(ah);
+            var agreementManagementService = AsmRepository.GetServiceProxyCachedOrDefault<IAgreementManagementService>(ah);
+            var agreementManagementConfigurationService = AsmRepository.GetServiceProxyCachedOrDefault<IAgreementManagementConfigurationService>(ah);
+            var pricingService = AsmRepository.GetServiceProxyCachedOrDefault<IPricingService>(ah);
+            var productCatalogService = AsmRepository.GetServiceProxyCachedOrDefault<IProductCatalogService>(ah);
+            var sandboxService = AsmRepository.GetServiceProxyCachedOrDefault<ISandBoxManagerService>(ah);
+            #endregion
+
+            int sandboxId = sandboxService.CreateSandbox();
+
+            var agreementDetailReasons = agreementManagementConfigurationService.GetLookups(PayMedia.ApplicationServices.AgreementManagement.ServiceContracts.LookupLists.AgreementDetailCreationReasons);
+            
+            var agreementDetailCreateReason = agreementDetailReasons[0];
+
+            AgreementDetailWithOfferDefinitionsCollection productListToCapture = new AgreementDetailWithOfferDefinitionsCollection();
+            ProductCaptureOfferInfoCollection offerInfoCollection = new ProductCaptureOfferInfoCollection();
+
+            foreach (var hardware in hardwareMappings)
+            {
+                var agreementDetailWithOfferDefinitions = new AgreementDetailWithOfferDefinitions();
+                var agreementDetail = new AgreementDetail();
+
+                agreementDetail.CustomerId = customer.Id;
+                agreementDetail.AgreementId = agreement.Id;
+                agreementDetail.Segmentation = hardware.HWGroudId;
+                agreementDetail.ChargePeriod = agreement.ChargePeriod;
+                agreementDetail.CommercialProductId = hardware.CommercialProductId;
+                agreementDetail.DeviceIncluded = true;
+                agreementDetail.DevicesOnHand = false;
+                agreementDetail.Quantity = 1;
+                agreementDetail.FinanceOptionId = hardware.FinanceOptionId;
+                agreementDetail.BusinessUnitId = customer.BusinessUnitId;
+                agreementDetail.DisconnectionSetting = PayMedia.ApplicationServices.AgreementManagement.ServiceContracts.DisconnectionDateSettings.AccountBased;
+
+                agreementDetailWithOfferDefinitions.AgreementDetail = agreementDetail;
+
+                productListToCapture.Add(agreementDetailWithOfferDefinitions);
+            }
+
+            foreach (var software in softwareMappings)
+            {
+                var agreementDetailWithOfferDefinitions = new AgreementDetailWithOfferDefinitions();
+                var agreementDetail = new AgreementDetail();
+
+                agreementDetail.CustomerId = customer.Id;
+                agreementDetail.AgreementId = agreement.Id;
+                if (software.IsInternet == 1)
+                    agreementDetail.Segmentation = 0;
+                else
+                    agreementDetail.Segmentation = software.HWGroudId;
+                agreementDetail.ChargePeriod = agreement.ChargePeriod;
+                agreementDetail.CommercialProductId = software.CommercialProductId;
+                agreementDetail.DeviceIncluded = false;
+                agreementDetail.DevicesOnHand = false;
+                agreementDetail.Quantity = 1;
+                agreementDetail.FinanceOptionId = software.FinanceOptionId;
+                agreementDetail.BusinessUnitId = customer.BusinessUnitId;
+                agreementDetail.DisconnectionSetting = PayMedia.ApplicationServices.AgreementManagement.ServiceContracts.DisconnectionDateSettings.QuoteBased;
+
+                agreementDetailWithOfferDefinitions.AgreementDetail = agreementDetail;
+
+                //Add offer only to software that attached to first decoder or internet product
+                if (software.HWGroudId == 1 || software.IsInternet == 1)
+                {
+                    foreach (var offer in offerList)
+                    {
+                        if (IsProductValidForOffer(offer, software.CommercialProductId, "iccapi", "ap1msky!"))
+                            offerInfoCollection.Add(new ProductCaptureOfferInfo() { AppliedOfferDefinitionId = offer });
+                    }
+
+                    agreementDetailWithOfferDefinitions.ProductCaptureOfferInfos = offerInfoCollection;
+                }
+
+                productListToCapture.Add(agreementDetailWithOfferDefinitions);
+
+                offerInfoCollection = new ProductCaptureOfferInfoCollection();
+            }
+
+            List<int> agreementLevelOfferList = new List<int>();
+            foreach (var offer in offerList)
+            {
+                if (getAgreementLevelOffer(offer, "iccapi", "ap1msky!") == ApplyToLevelTypes.Agreement)
+                    agreementLevelOfferList.Add(offer);
+            }
+
+            ProductCaptureParams param = new ProductCaptureParams()
+            {
+                SandboxId = sandboxId,
+                AgreementId = agreement.Id,
+                CaptureReasons = new ProductCaptureReasons()
+                {
+                    CreateReason = Convert.ToInt32(agreementDetailCreateReason.Key)
+                },
+
+                DevicesOnHand = false,
+                OfferDefinitions = agreementLevelOfferList,
+                SkipWorkOrderGeneration = true,
+                SkipShippingOrderGeneration = false,
+                AgreementDetailWithOfferDefinitions = productListToCapture
+            };
+
+            ProductCaptureResults result = agreementManagementService.ManageProductCapture(param);
+
+            if (hardwareMappings.FindAll(t => t.IsInternet == 0).Count > 1)
+                CreateDeviceLinks(agreement, result.AgreementDetails, sandboxId, "iccapi", "ap1msky!");
+
+            if (result.AgreementDetails.Items.Count == 0)
+            {
+                //Console.WriteLine("Warnings : " + result.WarningMessage);
+
+                //Console.WriteLine("Something bad happened. Sandbox rolled back.");
+
+                //The "false" value in this line of code rolls back the sandbox.
+                sandboxService.FinalizeSandbox(sandboxId, false);
+                return null;
+
+            }
+            else
+            {
+                //The "true" value in this line of code commits the sandbox.
+                sandboxService.FinalizeSandbox(sandboxId, true);
+
+                foreach (var item in result.AgreementDetails)
+                {
+                    //Console.WriteLine("Congratulations! New Product ID = {0}.", item.Id);
+                }
+                return result;
+            }
+        }
+        private static bool IsProductValidForOffer(int offer, int commercialProductId, string username_ad, string password_ad)
+        {
+            #region AuthorizationHeader
+            //Here we assign our login credentials.
+            Authentication_class var_auth = new Authentication_class();
+            AuthenticationHeader ah = var_auth.getAuthHeader(username_ad, password_ad);
+            //This is the location of the ASM services.
+            AsmRepository.SetServiceLocationUrl(var_auth.var_service_location_url);
+            //Here we create proxies for all the services we will need.
+            var customersService = AsmRepository.GetServiceProxyCachedOrDefault<ICustomersService>(ah);
+            var customersConfigurationService = AsmRepository.GetServiceProxyCachedOrDefault<ICustomersConfigurationService>(ah);
+            var financeService = AsmRepository.GetServiceProxyCachedOrDefault<IFinanceService>(ah);
+            var financeConfigurationService = AsmRepository.GetServiceProxyCachedOrDefault<IFinanceConfigurationService>(ah);
+            var invoiceRunService = AsmRepository.GetServiceProxyCachedOrDefault<IInvoiceRunService>(ah);
+            var agreementManagementService = AsmRepository.GetServiceProxyCachedOrDefault<IAgreementManagementService>(ah);
+            var agreementManagementConfigurationService = AsmRepository.GetServiceProxyCachedOrDefault<IAgreementManagementConfigurationService>(ah);
+            var pricingService = AsmRepository.GetServiceProxyCachedOrDefault<IPricingService>(ah);
+            var productCatalogService = AsmRepository.GetServiceProxyCachedOrDefault<IProductCatalogService>(ah);
+            var sandboxService = AsmRepository.GetServiceProxyCachedOrDefault<ISandBoxManagerService>(ah);
+            #endregion
+            
+
+            var productCatalogConfigurationService = AsmRepository.AllServices.GetProductCatalogConfigurationService(ah);
+            var offerManagementConfigurationService = AsmRepository.AllServices.GetOfferManagementConfigurationService(ah);
+
+            var offerDefinition = offerManagementConfigurationService.GetOfferDefinition(offer);
+
+            if (offerDefinition.ApplyToLevel == ApplyToLevelTypes.AgreementDetail)
+            {
+                if (offerDefinition.ProductCombination == 0)
+                {
+                    if (offerDefinition.ProductAppliedTo == commercialProductId)
+                        return true;
+                    else
+                        return false;
+                }
+                else
+                {
+                    var productCombinations = productCatalogConfigurationService.GetProductCombination(offerDefinition.ProductCombination.Value);
+
+                    if (productCombinations.Combinations.Items.Find(t => t.CommercialProductId.Value == commercialProductId) != null)
+                        return true;
+                    else
+                        return false;
+                }
+
+
+            }
+            else
+                return false;
+        }
+        private static ApplyToLevelTypes getAgreementLevelOffer(int offerid_param, string username_ad, string password_ad)
+        {
+            #region AuthorizationHeader
+            //Here we assign our login credentials.
+            Authentication_class var_auth = new Authentication_class();
+            AuthenticationHeader ah = var_auth.getAuthHeader(username_ad, password_ad);
+            //This is the location of the ASM services.
+            AsmRepository.SetServiceLocationUrl(var_auth.var_service_location_url);
+            //Here we create proxies for all the services we will need.
+            var customersService = AsmRepository.GetServiceProxyCachedOrDefault<ICustomersService>(ah);
+            var customersConfigurationService = AsmRepository.GetServiceProxyCachedOrDefault<ICustomersConfigurationService>(ah);
+            var financeService = AsmRepository.GetServiceProxyCachedOrDefault<IFinanceService>(ah);
+            var financeConfigurationService = AsmRepository.GetServiceProxyCachedOrDefault<IFinanceConfigurationService>(ah);
+            var invoiceRunService = AsmRepository.GetServiceProxyCachedOrDefault<IInvoiceRunService>(ah);
+            var agreementManagementService = AsmRepository.GetServiceProxyCachedOrDefault<IAgreementManagementService>(ah);
+            var agreementManagementConfigurationService = AsmRepository.GetServiceProxyCachedOrDefault<IAgreementManagementConfigurationService>(ah);
+            var pricingService = AsmRepository.GetServiceProxyCachedOrDefault<IPricingService>(ah);
+            var productCatalogService = AsmRepository.GetServiceProxyCachedOrDefault<IProductCatalogService>(ah);
+            var sandboxService = AsmRepository.GetServiceProxyCachedOrDefault<ISandBoxManagerService>(ah);
+            #endregion
+
+
+            var productCatalogConfigurationService = AsmRepository.AllServices.GetProductCatalogConfigurationService(ah);
+            var offerManagementConfigurationService = AsmRepository.AllServices.GetOfferManagementConfigurationService(ah);
+
+            var offerDefinition = offerManagementConfigurationService.GetOfferDefinition(offerid_param);
+            return offerDefinition.ApplyToLevel;
+
+        }
+        private static void CreateDeviceLinks(Agreement agreement, AgreementDetailCollection agreementDetails, int sandboxId, string username_ad, string password_ad)
+        {
+            #region AuthorizationHeader
+            //Here we assign our login credentials.
+            Authentication_class var_auth = new Authentication_class();
+            AuthenticationHeader ah = var_auth.getAuthHeader(username_ad, password_ad);
+            //This is the location of the ASM services.
+            AsmRepository.SetServiceLocationUrl(var_auth.var_service_location_url);
+            //Here we create proxies for all the services we will need.
+            var customersService = AsmRepository.GetServiceProxyCachedOrDefault<ICustomersService>(ah);
+            var customersConfigurationService = AsmRepository.GetServiceProxyCachedOrDefault<ICustomersConfigurationService>(ah);
+            var financeService = AsmRepository.GetServiceProxyCachedOrDefault<IFinanceService>(ah);
+            var financeConfigurationService = AsmRepository.GetServiceProxyCachedOrDefault<IFinanceConfigurationService>(ah);
+            var invoiceRunService = AsmRepository.GetServiceProxyCachedOrDefault<IInvoiceRunService>(ah);
+            var agreementManagementService = AsmRepository.GetServiceProxyCachedOrDefault<IAgreementManagementService>(ah);
+            var pricingService = AsmRepository.GetServiceProxyCachedOrDefault<IPricingService>(ah);
+            var productCatalogService = AsmRepository.GetServiceProxyCachedOrDefault<IProductCatalogService>(ah);
+            var productCatalogConfigurationService = AsmRepository.GetServiceProxyCachedOrDefault<IProductCatalogConfigurationService>(ah);
+            var sandboxService = AsmRepository.GetServiceProxyCachedOrDefault<ISandBoxManagerService>(ah);
+            #endregion
+
+            var DPAD = agreementManagementService.GetDevicesPerAgreementDetailForAgreement(agreement.Id.Value, 0);
+
+            foreach (var device in DPAD)
+            {
+                if (device.TechnicalProductId == 7 /*viewing card*/)
+                {
+                    var currentDeviceAgreementDetails = agreementDetails.FirstOrDefault(t => t.Id == device.AgreementDetailId);
+                    foreach (var agreementDetail in agreementDetails)
+                    {
+                        if (currentDeviceAgreementDetails.Id != agreementDetail.Id &&
+                            currentDeviceAgreementDetails.Segmentation == agreementDetail.Segmentation)
+                        {
+                            int[] softwareCommercialIds = new int[] { agreementDetail.CommercialProductId.Value };
+                            var technicalSWProductToLink = productCatalogConfigurationService.GetTechnicalProductsForCommercialProductIds(softwareCommercialIds, 0);
+
+                            SoftwarePerAgreementDetail linkSoftwareToHardware = new SoftwarePerAgreementDetail();
+                            linkSoftwareToHardware.AgreementDetailId = agreementDetail.Id;
+                            linkSoftwareToHardware.DevicePerAgreementDetailId = device.Id;
+                            linkSoftwareToHardware.TechnicalProductId = technicalSWProductToLink.FirstOrDefault().Id;
+                            //linkSoftwareToHardware.TechnicalProductId = device.TechnicalProductId;
+                            linkSoftwareToHardware.SandboxId = sandboxId;
+
+                            agreementManagementService.CreateSoftwarePerAgreementDetail(linkSoftwareToHardware, 99117);
+                        }
+                    }
+                }
+            }
+        }
+
+
+        public static FinancialAccount CreateFinancialAccount(Customer customer_param, ICC_customer_2 customer_data_param)
+        {
+            #region AuthorizationHeader
+            //Here we assign our login credentials.
+            Authentication_class var_auth = new Authentication_class();
+            AuthenticationHeader ah = var_auth.getAuthHeader(customer_data_param.username_ad, customer_data_param.password_ad);
+            //This is the location of the ASM services.
+            AsmRepository.SetServiceLocationUrl(var_auth.var_service_location_url);
+            //Here we create proxies for all the services we will need.
+            var customersService = AsmRepository.GetServiceProxyCachedOrDefault<ICustomersService>(ah);
+            var customersConfigurationService = AsmRepository.GetServiceProxyCachedOrDefault<ICustomersConfigurationService>(ah);
+            var financeService = AsmRepository.GetServiceProxyCachedOrDefault<IFinanceService>(ah);
+            var financeConfigurationService = AsmRepository.GetServiceProxyCachedOrDefault<IFinanceConfigurationService>(ah);
+            var invoiceRunService = AsmRepository.GetServiceProxyCachedOrDefault<IInvoiceRunService>(ah);
+            var agreementManagementService = AsmRepository.GetServiceProxyCachedOrDefault<IAgreementManagementService>(ah);
+            var pricingService = AsmRepository.GetServiceProxyCachedOrDefault<IPricingService>(ah);
+            var productCatalogService = AsmRepository.GetServiceProxyCachedOrDefault<IProductCatalogService>(ah);
+            var sandboxService = AsmRepository.GetServiceProxyCachedOrDefault<ISandBoxManagerService>(ah);
+            #endregion
+
+            CustomerDefaults customerDefault = customersConfigurationService.GetCustomerDefaults();
+
+            #region Create Financial Account
+            //If you ever need to get the default values for a new financial account,
+            //you can use these methods.
+            //This method returns general financial defaults.
+            //FinanceDefaults financeDefault = financeConfigurationService.GetFinanceDefaults();
+            //This method returns the default invoice profile ID for a given customer.
+            //InvoicingProfile invoicingProfile = invoiceRunService.GetDefaultInvoicingProfile(DateTime.Today, (int)newCustomer.Id,
+            //(InvoicingMethod)financeDefault.DefaultInvoiceMethod);
+            //This method returns the due date method for a given customer.
+            //DueIn dueIn = financeConfigurationService.GetDefaultDueInByCustomerId
+            //(int)newCustomer.Id);
+            //This value is a reason ID for ICC system event 115.
+            //You can get this from IFinancialConfigurationService.GetLookups
+            //(LookupLists.FinancialAccountCreateReasons)
+            int faReason = 0;
+            //Instantiate a new FinancialAccount object.
+            FinancialAccount financialAccount = new FinancialAccount();
+            //You must pass in the customer ID.
+            financialAccount.CustomerId = customer_param.Id;
+            financialAccount.Name = customer_data_param.FaName;
+
+            //ICC uses configured default values to create the financial account.
+            //You can override the defaults by passing in other values.
+            //Here we override the default InvoicingProfileId.
+
+            //financialAccount.InvoicingProfileId = customer_data.invoicing_profile_method;
+            //Here we override the default Due Date Method.
+            financialAccount.DueIn = 1;
+            //Here we override the default currency.
+            financialAccount.CurrencyId = 1;
+
+            //Type is used to identify whether the customer buys his products on
+            //a pre-paid or post-paid basis.
+            financialAccount.TypeId = customerDefault.FinancialAccountType; // 1=prepaid quote, 2=prepaid wallet
+            financialAccount.Balance = 10000;
+            //financialAccount.BankAccountType = 1;
+            financialAccount.AnniversaryMonth = 12;
+            financialAccount.ProxyCodeId = 2;
+            financialAccount.MopId = customer_data_param.MOPId;
+
+            //Our system has been configured to require additional values when the MOP
+            //is credit card, so here we instantiate a new CreditCardCollection
+            //to hold those values.
+            if (customer_data_param.tipe_pembayaran == 1) // kondisi cash
+            {
+                financialAccount.BankName = customer_data_param.BankName;
+
+            }
+            else if (customer_data_param.tipe_pembayaran == 2) // kondisi credit card
+            {
+                //If you need to explicitly assign the default Method of Payment ID, you can
+                //use this statement:
+                //financialAccount.MopId = customerDefault.MethodOfPayment;
+                //In this example, we will override the default method of payment
+                //to assign ID 1 ("VISA" credit card).
+                //financialAccount.MopId = 82;
+
+                financialAccount.BankName = customer_data_param.BankName;
+                financialAccount.CreditCard = new CreditCardCollection();
+                CreditCard creditcardinfo = new CreditCard();
+                financialAccount.CreditCard.Add(creditcardinfo);
+
+                //Use the CreditCardDisplay property to pass in the credit card number.
+                //In the database, the credit card number is encrypted.
+                //Configuration controls whether the credit card number is masked when it
+                //is returned in a method call.
+                //For information about encryption and masked credit card numbers,
+                //see the "API FAQs" section
+                //of the ICC API Developer's Guide.
+                creditcardinfo.PostalCode = "123456789111222";
+                creditcardinfo.CreditCardDisplay = customer_data_param.CreditCardNumber;
+                creditcardinfo.FirstName = customer_data_param.CreditCardFirstName;
+                creditcardinfo.SurName = customer_data_param.CreditCardLastName;
+                creditcardinfo.SecurityCode = customer_data_param.SecurityCode;
+                creditcardinfo.AuthorizationCode = "987";
+                creditcardinfo.AuthorizationDate = new DateTime(2017, 1, 18);
+                creditcardinfo.ExpirationDate = DateTime.ParseExact(customer_data_param.ExpirationDate_CC, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+
+            }
+
+            else if (customer_data_param.tipe_pembayaran == 3)
+            {
+                financialAccount.BankAccountId = customer_data_param.bank_account_id;
+                financialAccount.IBANAccountId = customer_data_param.IBAN;
+                //financialAccount.BankCodeId = customer_data.bank_code;
+                //financialAccount.SWIFTCode = customer_data.swift_code;
+                financialAccount.InvoicingProfileId = 1;
+                //financialAccount.BankBranchId = "";
+            }
+
+            financialAccount.InvoicingProfileId = Int32.Parse(DateTime.Today.Day.ToString());
+
+            financialAccount.ProxyCode = customer_data_param.ProxyCode;
+            financialAccount.ProxyCodeId = customer_data_param.ProxyCodeId;
+            financialAccount.InvoiceDeliveryMethodId = customer_data_param.invoicing_profile_method; //1=email, 2=printed, 3=sms
+            financialAccount.NextInvoiceText = customer_data_param.Remark;
+            //This call creates the financial account and commits it to the database.
+            FinancialAccount newFinancialAccount = financeService.CreateFinancialAccount(financialAccount, faReason);
+            //Test that the financial account was created.
+            //Console.WriteLine("Financial account ID {0}: Account balance = {1} Credit Card number = {2}", newFinancialAccount.Id, newFinancialAccount.Balance, newFinancialAccount.CreditCard.Items[0].CreditCardDisplay);
+            //Console.WriteLine("Press Enter to continue.");
+            //Console.ReadLine();
+            #endregion
+
+            return newFinancialAccount;
+        }
+        public static Agreement CreateAgreement(FinancialAccount financialAccount_param, ICC_customer_2 customer_data_param)
+        {
+            var period = ChargePeriods.Monthly;
+
+            #region AuthorizationHeader
+            //Here we assign our login credentials.
+            Authentication_class var_auth = new Authentication_class();
+            AuthenticationHeader ah = var_auth.getAuthHeader(customer_data_param.username_ad, customer_data_param.password_ad);
+            //This is the location of the ASM services.
+            AsmRepository.SetServiceLocationUrl(var_auth.var_service_location_url);
+            //Here we create proxies for all the services we will need.
+            var customersService = AsmRepository.GetServiceProxyCachedOrDefault<ICustomersService>(ah);
+            var customersConfigurationService = AsmRepository.GetServiceProxyCachedOrDefault<ICustomersConfigurationService>(ah);
+            var financeService = AsmRepository.GetServiceProxyCachedOrDefault<IFinanceService>(ah);
+            var financeConfigurationService = AsmRepository.GetServiceProxyCachedOrDefault<IFinanceConfigurationService>(ah);
+            var invoiceRunService = AsmRepository.GetServiceProxyCachedOrDefault<IInvoiceRunService>(ah);
+            var agreementManagementService = AsmRepository.GetServiceProxyCachedOrDefault<IAgreementManagementService>(ah);
+            var agreementManagementConfigurationService = AsmRepository.GetServiceProxyCachedOrDefault<IAgreementManagementConfigurationService>(ah);
+            var pricingService = AsmRepository.GetServiceProxyCachedOrDefault<IPricingService>(ah);
+            var productCatalogService = AsmRepository.GetServiceProxyCachedOrDefault<IProductCatalogService>(ah);
+            var sandboxService = AsmRepository.GetServiceProxyCachedOrDefault<ISandBoxManagerService>(ah);
+            #endregion
+
+            #region Create Agreement
+            //This value is a reason ID for ICC system event 960.
+            //You can get this from IAgreementManagementConfigurationService.GetLookups
+            //(LookupLists.AgreementCreationEditReasons)
+            int agReason = 0;
+            //Instantiate a new Agreement.
+            Agreement agreement = new Agreement();
+            //Required. Assign the financial account ID to the agreement.
+            agreement.FinancialAccountId = financialAccount_param.Id;
+            //Required. The default frequency for generating recurring charges
+            //for products on the agreement. AgreementDetails on this agreement
+            //inherit this value.
+
+
+
+            if (customer_data_param.charge_period.ToLower() == "monthly")
+                period = ChargePeriods.Monthly;
+            else if (customer_data_param.charge_period.ToLower() == "halfyearly")
+                period = ChargePeriods.HalfYearly;
+            else if (customer_data_param.charge_period.ToLower() == "quarterly")
+                period = ChargePeriods.Quarterly;
+            else if (customer_data_param.charge_period.ToLower() == "yearly")
+                period = ChargePeriods.Yearly;
+            else if (customer_data_param.charge_period.ToLower() == "none")
+                period = ChargePeriods.None;
+
+            agreement.ChargePeriod = period;
+
+            //The default Type is a configured value. You can override the default by passing
+            //in a new value here.
+            agreement.Type = 1;
+            //A configured value that represents the duration of the agreement.
+            agreement.ContractPeriodId = 12;
+            //Market segment is derived from the customer's service address.
+            //You can override the value, but it is not recommended because the choice
+            //of available products can depend on market segment configuration.
+            //agreement.MarketSegmentId = 1;
+            //This call creates the agreement and commits it to the database.
+            Agreement newAgreement = agreementManagementService.CreateAgreement(agreement, agReason);
+            //Test that the agreement was created.
+            //Console.WriteLine("Agreement ID {0}: Market Segment ID = {1}", newAgreement.Id, newAgreement.MarketSegmentId);
+            //Console.WriteLine("Press Enter to continue.");
+            //Console.ReadLine();
+            #endregion Create Agreement
+
+            return newAgreement;
+        }
+        static int getBubyZipcode_2(string postcode, ICC_customer_2 customer_data_param)
+        {
+            Authentication_class var_auth = new Authentication_class();
+            AuthenticationHeader ah = var_auth.getAuthHeader(customer_data_param.username_ad, customer_data_param.password_ad);
+            //This is the location of the ASM services.
+            AsmRepository.SetServiceLocationUrl(var_auth.var_service_location_url);
+
+            int buid = 0;
+            var buService = AsmRepository.AllServices.GetBusinessUnitsService(ah);
+            var bucService = AsmRepository.AllServices.GetBusinessUnitsConfigurationService(ah);
+            var bus = buService.GetBusinessUnits(new AddressCriteria()
+            {
+                CountryId = 1,
+                PostalCode = postcode
+            });
+
+            foreach (var bu in bus)
+            {
+
+                var businessunit = bucService.GetBusinessUnitById(Int32.Parse(bu.Key.ToString()));
+                if (businessunit.Attributes.Items.Count == 4)
+                {
+                    buid = businessunit.Id.Value;
+                    //Console.WriteLine("Business Unit : " + businessunit.Description);
+                    break;
+                }
+
+            }
+            return buid;
+
+        }
+
+        static void addAddress_2(int address_type, ICC_customer_2 customer_data_json, Customer customer_param, string postcode, string addr1, string addr2, int customerid, string mobile, string homephone, string workphone, string emergency_phone, string email, string landmark, string directions)
+        {
+            Authentication_class var_auth = new Authentication_class();
+            AuthenticationHeader ah = var_auth.getAuthHeader(customer_data_json.username_ad, customer_data_json.password_ad);
+            //This is the location of the ASM services.
+            AsmRepository.SetServiceLocationUrl(var_auth.var_service_location_url);
+
+            ICustomersService custService = null;
+            ICustomersConfigurationService custcService = null;
+            custService = AsmRepository.AllServices.GetCustomersService(ah);
+            custcService = AsmRepository.AllServices.GetCustomersConfigurationService(ah);
+
+            var va = custcService.GetValidAddresses(new BaseQueryRequest()
+            {
+                FilterCriteria = new CriteriaCollection() {
+                    new Criteria() {
+                        Key = "PostalCode",
+                        Operator=Operator.Equal,
+                         Value = postcode
+                    }
+                }
+
+            });
+
+            Address addr = new Address();
+            addr.Street = va.Items[0].Street;
+            addr.BigCity = va.Items[0].BigCity;
+            addr.SmallCity = va.Items[0].SmallCity;
+            addr.CustomerId = customerid;
+            addr.Fax1 = emergency_phone;
+            //addr.CustomFields = 
+            if (address_type == 1)
+            {
+                // Billing address
+                addr.Type = AddressTypes.Billing;
+            }
+            else if (address_type == 2)
+            {
+                // Billing address
+                addr.Type = AddressTypes.WorkOrder;
+            }
+            else if (address_type == 3)
+            {
+                // Billing address
+                addr.Type = AddressTypes.Agreement;
+            }
+
+
+            // Work Order Address
+            //addr.Type = AddressTypes.WorkOrder;
+            addr.FirstName = customer_param.DefaultAddress.FirstName;
+            addr.Surname = customer_param.DefaultAddress.Surname;
+            addr.MiddleName = customer_param.DefaultAddress.MiddleName;
+            addr.Email = email;
+            addr.CountryId = va.Items[0].CountryId;
+            addr.ProvinceKey = va.Items[0].ProvinceId;
+            addr.Extra = addr1;
+            addr.ExtraExtra = addr2;
+            addr.Fax2 = mobile;
+            addr.HomePhone = homephone;
+            addr.WorkPhone = workphone;
+            addr.PropertyTypeId = 1;
+            addr.TitleId = 1;
+            addr.EntityId = 1;
+            addr.ValidAddressId = va.Items[0].Id;
+            addr.Directions = directions;
+            addr.LandMark = landmark;
+
+            custService.CreateAddress(addr, 0);
+
+        }
+        public class customFieldHandler_2
+        {
+            ICustomFieldsService custfService = null;
+            ICustomersService custService = null;
+
+            public customFieldHandler_2(AuthenticationHeader authHeader, ICC_customer_2 customer_json_param)
+            {
+                Authentication_class var_auth = new Authentication_class();
+                AuthenticationHeader ah = var_auth.getAuthHeader(customer_json_param.username_ad, customer_json_param.password_ad);
+                //This is the location of the ASM services.
+                AsmRepository.SetServiceLocationUrl(var_auth.var_service_location_url);
+
+                custfService = AsmRepository.AllServices.GetCustomFieldsService(ah);
+                custService = AsmRepository.AllServices.GetCustomersService(ah);
+            }
+
+
+            public void addAddressCustomField_2(string field_name, int address_id, string field_value)
+            {
+
+                var c = custfService.GetCustomFieldValues(address_id, 2);
+
+
+                if (c.Find(c1 => (c1.Name == field_name && c1.Value != null)) != null)
+                {
+                    custfService.UpdateCustomFieldValues(address_id, 2, new CustomFieldValueCollection()
+                    {
+                        new CustomFieldValue()
+                        {
+                            Name = field_name,
+                            Value = field_value
+                        }
+                    });
+                }
+                else
+                {
+                    custfService.CreateCustomFieldValues(address_id, 2, new CustomFieldValueCollection(){
+                        new CustomFieldValue()
+                            {
+                                Name = field_name,
+                                Value = field_value
+                            }
+                    });
+                }
+            }
+        }
+        //=====================================================================================================================================
 
         [Route("api/customer/AddNewCustomerBundle")] //JSON EXAMPLE method to add new customer
         [HttpPost]
@@ -461,14 +1254,15 @@ namespace web_api_icc_valsys_no_mvc.Controllers
             List<int> offers = new List<int>();
 
             #region add offer/promo
-            for (i=0; i < customer_data.the_total_promo; i++)
+            for (i = 0; i < customer_data.the_total_promo; i++)
             {
                 offers.Add(customer_data.the_list_promo[i]);
             }
             #endregion add offer/promo
 
+
             alert = addCommercialProductsSingleQuote(customer_data, newCustomer.Id.Value, period, offers);
-            #endregion add_commercial_product
+            #endregion add_commercial_product_single_quote
 
             #region Create product, device links, shipping order, and work order.
             ////Before you can sell a product to a customer, the customer MUST have a
@@ -773,6 +1567,7 @@ namespace web_api_icc_valsys_no_mvc.Controllers
                 }
             }
         }
+        
         //static int addCommercialProduct(int commercial_product_id, int customer_id, int financeoption)
         //{
 
@@ -923,15 +1718,12 @@ namespace web_api_icc_valsys_no_mvc.Controllers
                 custService = AsmRepository.AllServices.GetCustomersService(authHeader);
 
                 int sandbox_id = sandboxService.CreateSandbox();
-                //var commercial_product = productcService.GetCommercialProduct(commercial_product_id);
-                //if (commercial_product == null)
-                //{
-                //    //Console.WriteLine("Commercial Product with ID : " + commercial_product_id + " Not Exist!!!");
-                //    return 0;
-                //}
+                
 
                 int business_unit_id = custService.GetCustomer(customer_id).BusinessUnitId.Value;
 
+                int agd_id = 0;
+                int first_inet_prod = 0;
                 int reason120 = 65;
                 int agreement_id = 0;
                 var agreements = agService.GetAgreementsForCustomerId(customer_id, 1);
@@ -941,14 +1733,18 @@ namespace web_api_icc_valsys_no_mvc.Controllers
                     agreement_id = agreements.Items[0].Id.Value;
 
                     AgreementDetailWithOfferDefinitionsCollection productList = new AgreementDetailWithOfferDefinitionsCollection();
-                    for(int i = 0; i < customer_data_json.the_total_com_prod; i++)
+                    ProductCaptureOfferInfoCollection offerInfos = new ProductCaptureOfferInfoCollection();
+
+                    for (int i = 0; i < customer_data_json.the_total_com_prod; i++)
                     {
-                        if(
+                        // for product (hardware)
+                        if (
                             customer_data_json.the_list_com_prod_id[i] == 1 || customer_data_json.the_list_com_prod_id[i] == 2 ||
                             customer_data_json.the_list_com_prod_id[i] == 199 || customer_data_json.the_list_com_prod_id[i] == 200 ||
-                            customer_data_json.the_list_com_prod_id[i] == 308
-                          ) // for product (hardware) with id 1
+                            customer_data_json.the_list_com_prod_id[i] == 308 || customer_data_json.the_list_com_prod_id[i] == 309
+                          )
                         {
+
                             productList.Add(new AgreementDetailWithOfferDefinitions()
                             {
                                 AgreementDetail = new AgreementDetail()
@@ -957,7 +1753,6 @@ namespace web_api_icc_valsys_no_mvc.Controllers
                                     AgreementId = agreement_id,
                                     Segmentation = customer_data_json.the_segmentation_list[i],
                                     
-
                                     ChargePeriod = param_periods,
 
                                     CommercialProductId = customer_data_json.the_list_com_prod_id[i],    // comm_prod_id
@@ -972,16 +1767,31 @@ namespace web_api_icc_valsys_no_mvc.Controllers
                                 },
                             });
                         }
-                        else
+
+                        //for internet
+                        else if (customer_data_json.the_list_com_prod_id[i] == 243 || customer_data_json.the_list_com_prod_id[i] == 50 || customer_data_json.the_list_com_prod_id[i] == 49)
                         {
+                            if (first_inet_prod == 0)
+                            {
+                                foreach (var tt in offers)
+                                {
+                                    if (getoffer_def(customer_data_json.username_ad, customer_data_json.password_ad, tt, customer_data_json.the_list_com_prod_id[i]))
+                                        offerInfos.Add(new ProductCaptureOfferInfo() { AppliedOfferDefinitionId = tt });
+                                }
+                            }
+                            else
+                                offerInfos = new ProductCaptureOfferInfoCollection();
+
                             productList.Add(new AgreementDetailWithOfferDefinitions()
                             {
 
                                 AgreementDetail = new AgreementDetail()
                                 {
+
                                     CustomerId = customer_id,
                                     AgreementId = agreement_id,
                                     ChargePeriod = param_periods,
+                                    Id = agd_id,
                                     Segmentation = customer_data_json.the_segmentation_list[i],
                                     CommercialProductId = customer_data_json.the_list_com_prod_id[i],   // comm_prod_id
                                     DeviceIncluded = true,
@@ -991,11 +1801,64 @@ namespace web_api_icc_valsys_no_mvc.Controllers
                                     BusinessUnitId = business_unit_id,
                                     DisconnectionSetting = PayMedia.ApplicationServices.AgreementManagement.ServiceContracts.DisconnectionDateSettings.QuoteBased
                                 },
+
+                                ProductCaptureOfferInfos = offerInfos
+
                             });
+                            offerInfos = new ProductCaptureOfferInfoCollection();
+                            first_inet_prod = 1;
+                        }
+
+
+                        else
+                        {
+                            if (customer_data_json.the_segmentation_list[i] == 1)
+                            {
+                                foreach (var tt in offers)
+                                {
+                                    if (getoffer_def( customer_data_json.username_ad, customer_data_json.password_ad, tt, customer_data_json.the_list_com_prod_id[i]))
+                                        offerInfos.Add(new ProductCaptureOfferInfo() { AppliedOfferDefinitionId = tt });
+                                }
+                            }
+                            else
+                                offerInfos = new ProductCaptureOfferInfoCollection();
+
+
+                            productList.Add(new AgreementDetailWithOfferDefinitions()
+                            {
+
+                                AgreementDetail = new AgreementDetail()
+                                {
+
+                                    CustomerId = customer_id,
+                                    AgreementId = agreement_id,
+                                    ChargePeriod = param_periods,
+                                    Id = agd_id,
+                                    Segmentation = customer_data_json.the_segmentation_list[i],
+                                    CommercialProductId = customer_data_json.the_list_com_prod_id[i],   // comm_prod_id
+                                    DeviceIncluded = true,
+                                    DevicesOnHand = false,
+                                    Quantity = 1,
+                                    FinanceOptionId = 2,   // FinanceOptionId : 2 is Subscription for software product, if you need add hardware product, you need use 1 as sold, 3 as rent
+                                    BusinessUnitId = business_unit_id,
+                                    DisconnectionSetting = PayMedia.ApplicationServices.AgreementManagement.ServiceContracts.DisconnectionDateSettings.QuoteBased
+                                },
+
+                                ProductCaptureOfferInfos = offerInfos
+
+                            });
+                            offerInfos = new ProductCaptureOfferInfoCollection();
                         }
                     }
-                    
-                    
+
+                    List<int> ss = new List<int>();
+                    foreach (var oo in offers)
+                    {
+                        if (getoffer_level_agreement(customer_data_json.username_ad, customer_data_json.password_ad, oo) == ApplyToLevelTypes.Agreement)
+                            ss.Add(oo);
+                    }
+
+
                     ProductCaptureParams param = new ProductCaptureParams()
                     {
                         SandboxId = sandbox_id,
@@ -1004,44 +1867,24 @@ namespace web_api_icc_valsys_no_mvc.Controllers
                         {
                             CreateReason = reason120
                         },
-                        OfferDefinitions = offers,
+                        OfferDefinitions = ss,
                         SkipWorkOrderGeneration = true,
                         SkipShippingOrderGeneration = false,
                         AgreementDetailWithOfferDefinitions = productList
-                        //AgreementDetailWithOfferDefinitions = new AgreementDetailWithOfferDefinitionsCollection()
-                        //{
-                        //    new AgreementDetailWithOfferDefinitions()
-                        //    {
-                        //        AgreementDetail = new AgreementDetail()
-                        //        {
-                        //            CustomerId = customer_id,
-                        //            AgreementId = agreement_id,
-                        //            ChargePeriod = ChargePeriods.Monthly,
-                        //            CommercialProductId = commercial_product_id,
-                        //            // DevicesOnHand : For software product, put false, for hardware product, put true.
-                        //            DevicesOnHand = false,
-                        //            // Quantity : Please do not put number more than 1. It must be 1 only.
-                        //            Quantity = 1,  
-                        //            // FinanceOptionId : 2 is Subscription for software product, if you need add hardware product, you need use 1 (Sold) or 3 (Rent).
-                        //            FinanceOptionId = financeoption,
-                        //            BusinessUnitId = business_unit_id,
-                        //            DisconnectionSetting = PayMedia.ApplicationServices.AgreementManagement.ServiceContracts.DisconnectionDateSettings.QuoteBased
-                        //        },
-                        //    }
-                        //}
+                        
 
                     };
 
+                    
+
                     var result = agService.ManageProductCapture(param);
+                    
 
                     if (result.AgreementDetails.Items.Count == 0)
                     {
-                        //Console.WriteLine("Warnings : " + result.WarningMessage);
-
-                        //Console.WriteLine("Something bad happened. Sandbox rolled back.");
-
                         //The "false" value in this line of code rolls back the sandbox.
                         sandboxService.FinalizeSandbox(sandbox_id, false);
+
                         return 0;
 
                     }
@@ -1049,7 +1892,7 @@ namespace web_api_icc_valsys_no_mvc.Controllers
                     {
                         //The "true" value in this line of code commits the sandbox.
                         sandboxService.FinalizeSandbox(sandbox_id, true);
-
+                        
                         foreach (var item in result.AgreementDetails)
                         {
                             //Console.WriteLine("Congratulations! New Product ID = {0}.", item.Id);
@@ -1072,6 +1915,57 @@ namespace web_api_icc_valsys_no_mvc.Controllers
             }
 
         }
+
+        static bool getoffer_def(string username_ad, string password_ad, int offerid_param, int comm_prod_id_param)
+        {
+            Authentication_class var_auth = new Authentication_class();
+            AuthenticationHeader authHeader = var_auth.getAuthHeader(username_ad, password_ad);
+            AsmRepository.SetServiceLocationUrl(var_auth.var_service_location_url);
+
+            var offer_Serv_2 = AsmRepository.AllServices.GetProductCatalogConfigurationService(authHeader);
+            var offer_Serv_1 = AsmRepository.AllServices.GetOfferManagementConfigurationService(authHeader);
+
+
+            var a = offer_Serv_1.GetOfferDefinition(offerid_param);
+            if (a.ApplyToLevel == ApplyToLevelTypes.AgreementDetail)
+            {
+                if (a.ProductCombination == 0)
+                {
+                    if (a.ProductAppliedTo == comm_prod_id_param)
+                        return true;
+                    else
+                        return false;
+                }
+                else
+                {
+                    var b = offer_Serv_2.GetProductCombination(a.ProductCombination.Value);
+
+                    if (b.Combinations.Items.Find(t => t.CommercialProductId.Value == comm_prod_id_param) != null)
+                        return true;
+                    else
+                        return false;
+                }
+
+
+            }
+            else
+                return false;
+
+        }
+        static ApplyToLevelTypes getoffer_level_agreement(string username_ad, string password_ad,  int offerid_param)
+        {
+            Authentication_class var_auth = new Authentication_class();
+            AuthenticationHeader authHeader = var_auth.getAuthHeader(username_ad, password_ad);
+            AsmRepository.SetServiceLocationUrl(var_auth.var_service_location_url);
+
+            var offer_Serv_1 = AsmRepository.AllServices.GetOfferManagementConfigurationService(authHeader);
+
+
+            var a = offer_Serv_1.GetOfferDefinition(offerid_param);
+            return a.ApplyToLevel;
+
+        }
+
         public int getBubyZipcode(string postcode, ICC_customer customer_data_json)
         {
             Authentication_class var_auth = new Authentication_class();
@@ -1103,6 +1997,7 @@ namespace web_api_icc_valsys_no_mvc.Controllers
             return buid;
 
         }
+        
 
         [HttpPost]
         [Route("api/customer/AddNewhardwareproductadncreateshippingorder")] //JSON EXAMPLE method to add new customer
@@ -1316,6 +2211,51 @@ namespace web_api_icc_valsys_no_mvc.Controllers
             //Call the method and display the results.
             //This method searches ALL the addresses for a matching phone number.
             FindCustomerCollection customerColl = customersService.GetCustomers(request);
+            #endregion
+
+
+            if (customerColl != null)
+            {
+                return Request.CreateResponse(HttpStatusCode.OK, customerColl);
+            }
+            else
+            {
+                var message = string.Format("error");
+                HttpError err = new HttpError(message);
+                return Request.CreateResponse(HttpStatusCode.OK, message);
+            }
+        }
+
+        [HttpGet]
+        [ActionName("GetAllCustomerByCountryId")]
+        [Route("api/{username_ad}/{password_ad}/customer/GetCustomerHistoryByCustomerId/{cust_id}")]
+        public HttpResponseMessage GetCustomerHistoryByCustomerId(String username_ad, String password_ad, int cust_id)
+        {
+            Authentication_class var_auth = new Authentication_class();
+            AuthenticationHeader authHeader = var_auth.getAuthHeader(username_ad, password_ad);
+            AsmRepository.SetServiceLocationUrl(var_auth.var_service_location_url);
+
+            var customersService = AsmRepository.GetServiceProxyCachedOrDefault<ICustomersService>(authHeader);
+            var financeService = AsmRepository.GetServiceProxyCachedOrDefault<IFinanceService>(authHeader);
+            var financeConfigurationService = AsmRepository.GetServiceProxyCachedOrDefault<IFinanceConfigurationService>(authHeader);
+
+            #region Find customer by phone number
+            //Instantiate a BaseQueryRequest for your filter criteria.
+            BaseQueryRequest request = new BaseQueryRequest();
+
+            //Because the phone number is a string, the value entered
+            //must exactly match the customer's phone number in the database.
+            //For an example that searches for a matching address,
+            //see the code sample called Code_FindCustomerByAddressDetails.pdf
+
+
+            request.FilterCriteria = new CriteriaCollection();
+            request.FilterCriteria.Add(new Criteria("EventId", 128));
+            request.FilterCriteria.Add(new Criteria("ReasonKey", 27223));
+
+            //Call the method and display the results.
+            //This method searches ALL the addresses for a matching phone number.
+            var customerColl = customersService.GetCustomerHistory(cust_id, request.FilterCriteria, 0);
             #endregion
 
 
@@ -1566,20 +2506,30 @@ namespace web_api_icc_valsys_no_mvc.Controllers
         {
             Authentication_class var_auth = new Authentication_class();
             AuthenticationHeader ah = var_auth.getAuthHeader(username_ad, password_ad);
-
             AsmRepository.SetServiceLocationUrl(var_auth.var_service_location_url);
             var customersService = AsmRepository.GetServiceProxyCachedOrDefault<ICustomersService>(ah);
-            
+
+
+            StringBuilder er = new StringBuilder();
+            er.Append("asasasasasasasasas" + Environment.NewLine);
+
+            var_auth.write_log(er);
+
+
+
             var customers = customersService.GetCustomer(id);
-            return Request.CreateResponse(HttpStatusCode.OK, customers);
-                
-            
-                //var message = string.Format("customers with id = {0} not found", id);
-                //HttpError err = new HttpError(message);
-                //return Request.CreateResponse(HttpStatusCode.OK, err);
-            
 
-
+            if (customers != null)
+            {
+                return Request.CreateResponse(HttpStatusCode.OK, customers);
+            }
+            else
+            {
+                var message = string.Format("An Error Has Occured With customers ID = ", customers.Id);
+                HttpError err = new HttpError(message);
+                return Request.CreateResponse(HttpStatusCode.BadRequest, err);
+            }
+            
         }
 
 

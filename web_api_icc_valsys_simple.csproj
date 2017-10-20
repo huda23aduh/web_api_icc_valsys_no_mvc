@@ -261,12 +261,21 @@
     <Compile Include="Models\CartItem.cs" />
     <Compile Include="Models\CreateNoteParams.cs" />
     <Compile Include="Models\Customers.cs" />
+    <Compile Include="Models\DeviceMappings.cs" />
     <Compile Include="Models\DocumentRequest.cs" />
     <Compile Include="Models\DuplicationCheckParams.cs" />
+    <Compile Include="Models\Format_tp_agdid.cs" />
+    <Compile Include="Models\HardwareMappings.cs" />
     <Compile Include="Models\Hardware_list.cs" />
     <Compile Include="Models\ICC_customer.cs" />
     <Compile Include="Models\ICC_customerResponse.cs" />
+    <Compile Include="Models\ICC_customer_2.cs" />
+    <Compile Include="Models\Link_dev_params.cs" />
+    <Compile Include="Models\Link_hw.cs" />
+    <Compile Include="Models\Link_sw.cs" />
     <Compile Include="Models\NewHw.cs" />
+    <Compile Include="Models\NewLinkParams.cs" />
+    <Compile Include="Models\New_sn_item.cs" />
     <Compile Include="Models\Productexample.cs" />
     <Compile Include="Models\Provinces.cs" />
     <Compile Include="Models\PurchaseOrder.cs" />
@@ -274,6 +283,7 @@
     <Compile Include="Models\Response.cs" />
     <Compile Include="Models\ServiceProvidersList.cs" />
     <Compile Include="Models\ServProvTimeSlot_response.cs" />
+    <Compile Include="Models\SoftwareMappings.cs" />
     <Compile Include="Models\TimeSlotAvailability.cs" />
     <Compile Include="Models\TimeSlotAvailabilityItem.cs" />
     <Compile Include="Models\TimeSlotParams.cs" />
@@ -318,6 +328,8 @@
           <DevelopmentServerPort>60881</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
           <IISUrl>http://localhost:60882/</IISUrl>
+          <OverrideIISAppRootUrl>True</OverrideIISAppRootUrl>
+          <IISAppRootUrl>http://localhost:60882/</IISAppRootUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

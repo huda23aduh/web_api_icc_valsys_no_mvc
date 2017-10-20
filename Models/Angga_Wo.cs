@@ -9,6 +9,7 @@ namespace web_api_icc_valsys_no_mvc.Models
     {
         public string username_ad { get; set; }
         public string password_ad { get; set; }
+        public string from_application { get; set; }
 
         public int wo_id_param { get; set; }
         public string wo_action_name_param { get; set; }
@@ -16,5 +17,10 @@ namespace web_api_icc_valsys_no_mvc.Models
         public string work_desc_param { get; set; }
         public string action_taken_param { get; set; }
         public int reason_id { get; set; }
+
+        public string reschedule_date_param { get; set; }
+        public int starting_timeslot_id { get; set; }
+
+
     }
 }

@@ -194,7 +194,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>07/25/2012 11:48:56</publishTime>
     </File>
     <File Include="bin/Newtonsoft.Json.dll">
-      <publishTime>03/08/2014 20:33:56</publishTime>
+      <publishTime>08/03/2014 20:33:56</publishTime>
     </File>
     <File Include="bin/NHibernate.ByteCode.LinFu.dll">
       <publishTime>01/01/0001 00:00:00</publishTime>
@@ -365,7 +365,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>03/15/2017 17:49:47</publishTime>
     </File>
     <File Include="bin/PayMedia.ApplicationServices.DocumentManagement.ServiceContracts.dll">
-      <publishTime>03/07/2017 07:14:13</publishTime>
+      <publishTime>07/03/2017 07:14:13</publishTime>
     </File>
     <File Include="bin/PayMedia.ApplicationServices.DocumentManagement.ServiceContracts.pdb">
       <publishTime>03/27/2017 08:40:06</publishTime>
@@ -953,13 +953,13 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>01/28/2015 04:04:30</publishTime>
     </File>
     <File Include="bin/web_api_icc_valsys_no_mvc.dll">
-      <publishTime>09/20/2017 12:11:38</publishTime>
+      <publishTime>10/20/2017 23:17:07</publishTime>
     </File>
     <File Include="bin/web_api_icc_valsys_no_mvc.pdb">
-      <publishTime>09/20/2017 12:11:38</publishTime>
+      <publishTime>10/20/2017 23:17:07</publishTime>
     </File>
     <File Include="bin/XmlDocument.xml">
-      <publishTime>09/20/2017 12:11:38</publishTime>
+      <publishTime>10/20/2017 23:17:07</publishTime>
     </File>
     <File Include="Global.asax">
       <publishTime>03/19/2017 15:21:20</publishTime>
@@ -974,7 +974,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>03/19/2017 15:32:46</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>09/15/2017 11:07:54</publishTime>
+      <publishTime>10/20/2017 22:06:03</publishTime>
     </File>
   </ItemGroup>
 </Project>
